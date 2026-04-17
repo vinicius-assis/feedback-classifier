@@ -1,0 +1,40 @@
+---
+description: NestJS API — modules, DTOs, LLM boundary, REST shape
+globs: apps/api/**/*.ts
+alwaysApply: false
+---
+
+# `apps/api` — Nest conventions
+
+## Structure
+
+- **Thin controllers**: parse/validate input, call one application service, map to HTTP status.
+- **Orchestration** (create → classify → persist, sync) lives in a dedicated **ingest/application service**, not duplicated across controllers.
+- Suggested modules: `Feedback` (read/list/stats), `Classification`/`Llm` (OpenAI only here), `IntegrationsSlack`, `Health`.
+
+## Patterns
+
+- **DTO + validation** on every body/query (`class-validator` and/or Zod). Return **400** with a consistent error shape on validation failure.
+- **Dependency injection** for the OpenAI client and classification service—always mockable in tests.
+- **Adapter at LLM boundary**: map provider JSON → internal enums; invalid values → `unknown` (never crash silently).
+- At most **one retry** for transient/parse failures; then apply the **failed** persistence policy from the core rule.
+- **Logging**: never log API keys or full `rawText` in production-oriented logs; log latency, `promptVersion`, route, correlation id if present.
+
+## REST (do not rename casually)
+
+| Method | Path |
+|--------|------|
+| POST | `/api/feedback` |
+| POST | `/api/feedback/bulk` |
+| POST | `/api/integrations/slack/feedback` |
+| GET | `/api/feedback` |
+| GET | `/api/feedback/:id` |
+| GET | `/api/feedback/stats/summary` |
+| GET | `/api/health` |
+| GET | `/api/health/ready` |
+
+Aggregations: Mongo aggregation in a read service; keep pipelines testable or isolated in a small helper.
+
+## Anti-patterns here
+
+God controllers, OpenAI calls from `FeedbackController`, skipping validation, returning 200 with “success” when `classificationStatus` is `failed`.

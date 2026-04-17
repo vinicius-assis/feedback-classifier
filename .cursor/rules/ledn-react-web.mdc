@@ -1,0 +1,37 @@
+---
+description: React web — Chakra, TanStack Query, English UI, API usage
+globs: apps/web/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# `apps/web` — React conventions
+
+## Stack
+
+- **Chakra UI** for layout and components; **TanStack Query** for all server state (lists, stats, mutations).
+- **React Router** for routes: `/dashboard`, `/ingest`, `/ingest/bulk`, detail `/feedback/:id` (or modal—stay consistent with existing code).
+- API base URL from **`VITE_API_BASE_URL`**; never hardcode `localhost` except in local example comments.
+
+## UI language
+
+- **User-facing strings in English** (labels, buttons, errors, empty states), per product spec.
+
+## Patterns
+
+- **Custom hooks** per feature where it reduces duplication (`useFeedbackList`, `useIngestFeedback`, etc.).
+- After successful mutations, **`invalidateQueries`** for affected lists and `stats/summary`.
+- Surface **`classificationStatus: failed`** clearly (badge, alert, or row styling)—PMs must see failures at a glance.
+- Prefer **accessible** Chakra patterns (labels on inputs, button loading states, focus management on dialogs).
+
+## Data fetching
+
+```tsx
+// Prefer Query for server state
+const q = useQuery({ queryKey: ['feedback', filters], queryFn: () => api.listFeedback(filters) });
+
+// Prefer useMutation + invalidateQueries for POST ingest
+```
+
+## Anti-patterns here
+
+`useEffect` + raw `fetch` spaghetti for every screen, Portuguese UI copy, ignoring loading/error/empty states, embedding business rules that belong in the API (e.g. re-implementing enum validation as the source of truth).

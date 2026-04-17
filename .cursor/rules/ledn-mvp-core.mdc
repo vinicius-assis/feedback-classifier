@@ -1,0 +1,32 @@
+---
+description: Ledn challenge MVP — stack, spec source, boundaries (always)
+alwaysApply: true
+---
+
+# Ledn Feedback Blackhole — core
+
+## Source of truth
+
+Implement and change behavior in line with:
+
+- `docs/superpowers/specs/2026-04-16-ledn-feedback-blackhole-design.md`
+- `docs/superpowers/plans/2026-04-16-ledn-feedback-blackhole-implementation-plan.md`
+
+If code and spec diverge, update spec/README or fix code—do not leave silent drift.
+
+## Stack (fixed for this MVP)
+
+- Monorepo: `apps/api` (NestJS REST), `apps/web` (React + Vite + Chakra UI).
+- MongoDB via root `docker-compose.yml` only for DB; **no Redis/BullMQ** unless the spec explicitly changes.
+- LLM: **OpenAI** official SDK; **no** direct OpenAI usage outside the classification/LLM module (see API rule).
+
+## Product rules
+
+- Ingestion classification is **synchronous** in the same HTTP request as persistence.
+- On LLM failure: still **persist** `rawText` with `classificationStatus: failed` and `classificationError`; respond **201** (per spec)—never pretend success with empty labels.
+- Global API prefix: **`/api`**. Validate env at bootstrap (`MONGODB_URI`, `OPENAI_API_KEY`, `Slack ingest secret`, `CORS_ORIGIN`).
+- Slack-like ingest: shared-secret header; **idempotency** on `sourceMetadata.externalMessageId` with **sparse unique** index when implementing Mongo.
+
+## Do not add (MVP)
+
+CQRS/event sourcing, multi-tenant auth, real Slack OAuth, Jira integration, extra microservices, or “queue everything” patterns without an explicit spec change.
