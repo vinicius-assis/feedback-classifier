@@ -6,6 +6,8 @@ alwaysApply: false
 
 # `apps/web` — React conventions
 
+Apply **`frontend-design`** for layout hierarchy, spacing, and polish **on top of** Chakra UI. Keep **routes and feature scope** from the spec (`/dashboard`, `/ingest`, etc.); English copy; TanStack Query for server state. **Do not** replace Chakra with another design system unless the spec changes.
+
 ## Stack
 
 - **Chakra UI** for layout and components; **TanStack Query** for all server state (lists, stats, mutations).

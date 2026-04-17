@@ -14,6 +14,15 @@ Implement and change behavior in line with:
 
 If code and spec diverge, update spec/README or fix code—do not leave silent drift.
 
+## Precedence (skills vs this repo)
+
+Optional **Cursor skills** installed for this project:
+
+- **`nestjs-best-practices`** (`npx skills add https://github.com/kadajett/agent-nestjs-skills --skill nestjs-best-practices`)
+- **`frontend-design`** (`npx skills add https://github.com/anthropics/skills --skill frontend-design`)
+
+Use them for **idiomatic Nest** and **UI/visual craft** (structure, accessibility, hierarchy). **If anything conflicts** with this repo’s product spec, `docs/superpowers/`, or `.cursor/rules/`, **the repo wins**. Do not introduce Redis, queues, extra microservices, or scope not in the spec just because a skill suggests “production” patterns.
+
 ## Stack (fixed for this MVP)
 
 - Monorepo: `apps/api` (NestJS REST), `apps/web` (React + Vite + Chakra UI).

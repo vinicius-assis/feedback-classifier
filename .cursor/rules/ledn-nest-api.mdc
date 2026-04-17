@@ -6,6 +6,8 @@ alwaysApply: false
 
 # `apps/api` — Nest conventions
 
+Apply **`nestjs-best-practices`** for idiomatic Nest (modules, DI, testing) **when compatible** with `ledn-mvp-core.mdc` (sync ingest, no Redis, LLM only in `Classification`/`Llm`). Routes and REST contract stay as in the table below.
+
 ## Structure
 
 - **Thin controllers**: parse/validate input, call one application service, map to HTTP status.

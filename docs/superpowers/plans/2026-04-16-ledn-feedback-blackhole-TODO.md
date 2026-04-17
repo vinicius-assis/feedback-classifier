@@ -2,6 +2,7 @@
 
 **Plano:** [2026-04-16-ledn-feedback-blackhole-implementation-plan.md](./2026-04-16-ledn-feedback-blackhole-implementation-plan.md)  
 **Spec:** [../specs/2026-04-16-ledn-feedback-blackhole-design.md](../specs/2026-04-16-ledn-feedback-blackhole-design.md)  
+**Skills:** `nestjs-best-practices`, `frontend-design` — seguir para idioma Nest/UI; **spec + `.cursor/rules/`** mandam em caso de conflito.  
 Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E → F → G → H** (após C.2 podes iniciar G.1 em paralelo).
 
 ---

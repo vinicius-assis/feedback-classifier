@@ -5,6 +5,8 @@
 **Data:** 2026-04-16  
 **Objetivo:** Entregar monorepo funcional (Nest + React + Mongo via Docker), fluxos do spec, README e base para Loom.
 
+**Skills Cursor (opcional):** `nestjs-best-practices` (kadajett), `frontend-design` (Anthropic) — úteis para estilo Nest e craft de UI; **em conflito com este plano/spec ou `.cursor/rules/`, prevalece o repositório.**
+
 ---
 
 ## 0. Convenções e pré-requisitos

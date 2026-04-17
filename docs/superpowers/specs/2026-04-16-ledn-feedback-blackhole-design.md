@@ -138,3 +138,5 @@ Redis/BullMQ, OAuth Slack real, Jira com credenciais reais, multi-tenant, RBAC c
 
 Plano de implementação: [../plans/2026-04-16-ledn-feedback-blackhole-implementation-plan.md](../plans/2026-04-16-ledn-feedback-blackhole-implementation-plan.md).  
 Checklist: [../plans/2026-04-16-ledn-feedback-blackhole-TODO.md](../plans/2026-04-16-ledn-feedback-blackhole-TODO.md).
+
+**Skills Cursor (opcional):** `nestjs-best-practices`, `frontend-design` — complementam convenções Nest e design de UI; **este spec e `.cursor/rules/` prevalecem** se houver divergência (ex.: scope MVP, sem Redis, contrato REST).
