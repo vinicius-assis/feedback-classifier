@@ -1,6 +1,7 @@
 # Implementation plan: Ledn Feedback Blackhole MVP
 
 **Spec:** [../specs/2026-04-16-ledn-feedback-blackhole-design.md](../specs/2026-04-16-ledn-feedback-blackhole-design.md)  
+**Checklist passo a passo:** [2026-04-16-ledn-feedback-blackhole-TODO.md](./2026-04-16-ledn-feedback-blackhole-TODO.md)  
 **Data:** 2026-04-16  
 **Objetivo:** Entregar monorepo funcional (Nest + React + Mongo via Docker), fluxos do spec, README e base para Loom.
 

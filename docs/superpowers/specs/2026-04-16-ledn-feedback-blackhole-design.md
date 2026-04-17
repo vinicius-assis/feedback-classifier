@@ -136,4 +136,5 @@ Redis/BullMQ, OAuth Slack real, Jira com credenciais reais, multi-tenant, RBAC c
 
 ## 11. Próximo passo
 
-Plano de implementação: [../plans/2026-04-16-ledn-feedback-blackhole-implementation-plan.md](../plans/2026-04-16-ledn-feedback-blackhole-implementation-plan.md).
+Plano de implementação: [../plans/2026-04-16-ledn-feedback-blackhole-implementation-plan.md](../plans/2026-04-16-ledn-feedback-blackhole-implementation-plan.md).  
+Checklist: [../plans/2026-04-16-ledn-feedback-blackhole-TODO.md](../plans/2026-04-16-ledn-feedback-blackhole-TODO.md).
