@@ -1,5 +1,18 @@
 {
   "name": "@ledn/api",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "lint": "eslint \"{src,test}/**/*.ts\" --fix --no-error-on-unmatched-pattern",
+    "lint:check": "eslint \"{src,test}/**/*.ts\" --no-error-on-unmatched-pattern"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.0.0"
+  }
 }

@@ -9,11 +9,11 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 
 ## Fase A — Monorepo e tooling
 
-- [ ] **A.1** Criar `package.json` na raiz com workspaces `apps/api` e `apps/web`
-- [ ] **A.2** Scripts na raiz: `dev` (API + web), `build`, `lint` (delegar às apps)
-- [ ] **A.3** Adicionar `.gitignore` (`node_modules`, `dist`, `.env`, logs, `.turbo` se usar)
-- [ ] **A.4** TypeScript `strict` em `apps/api` e `apps/web`
-- [ ] **A.5** ESLint + Prettier (por app ou raiz); `pnpm install` / `npm install` sem erros na raiz
+- [x] **A.1** Criar `package.json` na raiz com workspaces `apps/api` e `apps/web`
+- [x] **A.2** Scripts na raiz: `dev` (API + web), `build`, `lint` (delegar às apps)
+- [x] **A.3** Adicionar `.gitignore` (`node_modules`, `dist`, `.env`, logs, `.turbo` se usar)
+- [x] **A.4** TypeScript `strict` em `apps/api` e `apps/web`
+- [x] **A.5** ESLint + Prettier (por app ou raiz); `pnpm install` / `npm install` sem erros na raiz
 
 **Gate:** `pnpm install` na raiz instala as duas apps.
 
