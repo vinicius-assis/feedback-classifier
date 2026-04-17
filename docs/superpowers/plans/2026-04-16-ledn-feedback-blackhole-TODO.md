@@ -21,9 +21,9 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 
 ## Fase B — Infra local (Mongo)
 
-- [ ] **B.1** Criar `docker-compose.yml` com serviço `mongo` (imagem oficial, volume, porta `27017`)
-- [ ] **B.2** Healthcheck Mongo (`mongosh` / ping admin)
-- [ ] **B.3** `.env.example` na raiz ou em `apps/api` com `MONGODB_URI` (ex.: `mongodb://localhost:27017/ledn_feedback`)
+- [x] **B.1** Criar `docker-compose.yml` com serviço `mongo` (imagem oficial, volume, porta `27017`)
+- [x] **B.2** Healthcheck Mongo (`mongosh` / ping admin)
+- [x] **B.3** `.env.example` na raiz ou em `apps/api` com `MONGODB_URI` (ex.: `mongodb://localhost:27017/ledn_feedback`)
 
 **Gate:** `docker compose up -d` → serviço healthy.
 
