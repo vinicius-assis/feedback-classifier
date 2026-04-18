@@ -5,6 +5,7 @@ import * as Joi from 'joi';
 import { ClassificationModule } from './classification/classification.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { HealthModule } from './health/health.module';
+import { IntegrationsModule } from './integrations/integrations.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { HealthModule } from './health/health.module';
     }),
     ClassificationModule,
     FeedbackModule,
+    IntegrationsModule,
     HealthModule,
   ],
 })

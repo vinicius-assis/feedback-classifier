@@ -65,9 +65,9 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 - [x] **E.3** Sucesso: `classificationStatus: success` + campos preenchidos; resposta **201**
 - [x] **E.4** Falha LLM após retries: `classificationStatus: failed` + `classificationError`; ainda **201** com `rawText` guardado (sem fingir sucesso)
 - [x] **E.5** `POST /api/feedback/bulk`: array de `{ rawText }`; resposta **por item** (índice + item ou erro); limite de batch (ex. máx **20**) documentado
-- [ ] **E.6** `POST /api/integrations/slack/feedback`: header de segredo (ex. `X-Ingest-Secret`) vs env; body `text` + `externalMessageId` obrigatórios; `source: slack_like`
-- [ ] **E.7** Idempotência Slack: se `externalMessageId` existir → devolver documento existente com **200** (documentar no README)
-- [ ] **E.8** Primeira criação Slack → **201** (ou alinhar tudo a 201 — **uma** política documentada)
+- [x] **E.6** `POST /api/integrations/slack/feedback`: header de segredo (ex. `X-Ingest-Secret`) vs env; body `text` + `externalMessageId` obrigatórios; `source: slack_like`
+- [x] **E.7** Idempotência Slack: se `externalMessageId` existir → devolver documento existente com **200** (documentar no README)
+- [x] **E.8** Primeira criação Slack → **201** (ou alinhar tudo a 201 — **uma** política documentada)
 
 **Gate:** `curl`/REST para web, bulk e Slack (incl. duplicado) comportam-se como o spec.
 

@@ -44,9 +44,7 @@ export class FeedbackService {
     return this.persistFeedback(params);
   }
 
-  async findByExternalMessageId(
-    externalMessageId: string,
-  ): Promise<FeedbackItemDocument | null> {
+  async findByExternalMessageId(externalMessageId: string): Promise<FeedbackItemDocument | null> {
     return this.feedbackModel
       .findOne({ 'sourceMetadata.externalMessageId': externalMessageId })
       .exec();
