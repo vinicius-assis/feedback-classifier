@@ -33,10 +33,10 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 
 - [x] **C.1** Scaffold Nest em `apps/api` com prefixo global `/api`
 - [x] **C.2** Instalar `@nestjs/mongoose` + `MongooseModule.forRootAsync` com `ConfigService`
-- [ ] **C.3** Schema/collection `feedback_items` com campos do spec (`rawText`, `source`, `sourceMetadata`, classificação, `classificationStatus`, `classificationError`, `classificationRaw`, `model`, `promptVersion`, timestamps)
-- [ ] **C.4** Índice `{ createdAt: -1 }`
-- [ ] **C.5** Índice composto para filtros (`featureArea`, `urgency`, `sentiment` — ajustar ao que a listagem usar)
-- [ ] **C.6** Índice **unique sparse** em `sourceMetadata.externalMessageId`
+- [x] **C.3** Schema/collection `feedback_items` com campos do spec (`rawText`, `source`, `sourceMetadata`, classificação, `classificationStatus`, `classificationError`, `classificationRaw`, `model`, `promptVersion`, timestamps)
+- [x] **C.4** Índice `{ createdAt: -1 }`
+- [x] **C.5** Índice composto para filtros (`featureArea`, `urgency`, `sentiment` — ajustar ao que a listagem usar)
+- [x] **C.6** Índice **unique sparse** em `sourceMetadata.externalMessageId`
 - [x] **C.7** `ConfigModule` + validação na bootstrap: `MONGODB_URI`, `OPENAI_API_KEY`, `SLACK_INGEST_SECRET`, `CORS_ORIGIN`
 - [x] **C.8** `GET /api/health` (liveness)
 - [x] **C.9** `GET /api/health/ready` (ping Mongo; falha se DB down)
