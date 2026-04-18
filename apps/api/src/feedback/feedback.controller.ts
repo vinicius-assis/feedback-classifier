@@ -1,12 +1,30 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common';
 
 import { BulkFeedbackDto } from './dto/bulk-feedback.dto';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
+import { QueryFeedbackDto } from './dto/query-feedback.dto';
 import { FeedbackService } from './feedback.service';
 
 @Controller('feedback')
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
+
+  /** Aggregated counts for dashboard cards (must be registered before `:id`). */
+  @Get('stats/summary')
+  statsSummary() {
+    return this.feedbackService.getStatsSummary();
+  }
+
+  /** Paginated list with optional filters. */
+  @Get()
+  findAll(@Query() query: QueryFeedbackDto) {
+    return this.feedbackService.findAll(query);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.feedbackService.findById(id);
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

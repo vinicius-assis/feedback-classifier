@@ -75,9 +75,9 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 
 ## Fase F — Leitura e agregados
 
-- [ ] **F.1** `GET /api/feedback`: paginação + filtros (`sentiment`, `featureArea`, `urgency`, `source`, `classificationStatus`, datas se no spec)
-- [ ] **F.2** `GET /api/feedback/:id` com **404** se inexistente
-- [ ] **F.3** `GET /api/feedback/stats/summary`: agregações (`$facet` / `$group`) para dashboard
+- [x] **F.1** `GET /api/feedback`: paginação + filtros (`sentiment`, `featureArea`, `urgency`, `source`, `classificationStatus`, datas se no spec)
+- [x] **F.2** `GET /api/feedback/:id` com **404** se inexistente
+- [x] **F.3** `GET /api/feedback/stats/summary`: agregações (`$facet` / `$group`) para dashboard
 
 **Gate:** dados suficientes para montar dashboard só com lista + stats.
 
