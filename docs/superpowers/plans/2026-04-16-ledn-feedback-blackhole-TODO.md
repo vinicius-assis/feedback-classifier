@@ -51,8 +51,8 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 - [x] **D.2** Constante `PROMPT_VERSION = 'v1'` e lista de `featureArea` alinhada ao plano (código + prompt)
 - [x] **D.3** Chamada com saída JSON (`response_format` / schema conforme SDK)
 - [x] **D.4** Pós-processamento **Zod**: enums inválidos → `unknown`; preencher `classificationRaw`
-- [ ] **D.5** Timeout no cliente + **no máximo 1 retry** em falhas transitórias/parse
-- [ ] **D.6** Teste unitário com OpenAI **mockado**: JSON válido, enum inválido → `unknown`, erro simulado
+- [x] **D.5** Timeout no cliente + **no máximo 1 retry** em falhas transitórias/parse
+- [x] **D.6** Teste unitário com OpenAI **mockado**: JSON válido, enum inválido → `unknown`, erro simulado
 
 **Gate:** testes de classificação passam sem rede.
 

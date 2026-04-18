@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nest start --watch",
     "build": "nest build",
+    "test": "jest --config jest.config.cjs",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix --no-error-on-unmatched-pattern",
     "lint:check": "eslint \"{src,test}/**/*.ts\" --no-error-on-unmatched-pattern"
   },
@@ -13,10 +14,13 @@
     "@nestjs/schematics": "^11.1.0",
     "@nestjs/testing": "^11.1.19",
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
     "eslint": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "jest": "^30.3.0",
     "prettier": "^3.0.0",
+    "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.0.0"

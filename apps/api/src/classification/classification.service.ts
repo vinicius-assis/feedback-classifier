@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 
@@ -30,12 +30,18 @@ export interface ClassificationResult {
 
 @Injectable()
 export class ClassificationService {
+  private readonly logger = new Logger(ClassificationService.name);
+
   constructor(
     @Inject(OPENAI_CLIENT) private readonly openai: OpenAI,
     private readonly config: ConfigService,
   ) {}
 
   async classify(rawText: string): Promise<ClassificationResult> {
+    return this.attempt(rawText, 0);
+  }
+
+  private async attempt(rawText: string, tries: number): Promise<ClassificationResult> {
     const model = this.config.get<string>('OPENAI_MODEL') ?? 'gpt-4o-mini';
 
     try {
@@ -56,10 +62,25 @@ export class ClassificationService {
         promptVersion: PROMPT_VERSION,
       };
     } catch (err) {
+      if (tries < 1 && this.isRetryable(err)) {
+        this.logger.warn('Classification failed; retrying once.');
+        return this.attempt(rawText, tries + 1);
+      }
       throw new ClassificationError(
         err instanceof Error ? err.message : 'Classification failed',
         err,
       );
     }
+  }
+
+  private isRetryable(err: unknown): boolean {
+    if (err instanceof SyntaxError) {
+      return true;
+    }
+    if (err instanceof OpenAI.APIError) {
+      const status = err.status;
+      return status === 429 || (status !== undefined && status >= 500);
+    }
+    return false;
   }
 }
