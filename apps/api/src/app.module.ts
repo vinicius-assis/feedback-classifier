@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
+import { ClassificationModule } from './classification/classification.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { HealthModule } from './health/health.module';
 
@@ -14,6 +15,7 @@ import { HealthModule } from './health/health.module';
         OPENAI_API_KEY: Joi.string().required(),
         SLACK_INGEST_SECRET: Joi.string().required(),
         CORS_ORIGIN: Joi.string().required(),
+        OPENAI_MODEL: Joi.string().default('gpt-4o-mini'),
         PORT: Joi.number().default(3000),
       }),
     }),
@@ -23,6 +25,7 @@ import { HealthModule } from './health/health.module';
       }),
       inject: [ConfigService],
     }),
+    ClassificationModule,
     FeedbackModule,
     HealthModule,
   ],

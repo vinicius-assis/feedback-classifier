@@ -47,8 +47,8 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 
 ## Fase D — Classificação (OpenAI)
 
-- [ ] **D.1** `ClassificationModule` + provider do cliente OpenAI (SDK oficial)
-- [ ] **D.2** Constante `PROMPT_VERSION = 'v1'` e lista de `featureArea` alinhada ao plano (código + prompt)
+- [x] **D.1** `ClassificationModule` + provider do cliente OpenAI (SDK oficial)
+- [x] **D.2** Constante `PROMPT_VERSION = 'v1'` e lista de `featureArea` alinhada ao plano (código + prompt)
 - [ ] **D.3** Chamada com saída JSON (`response_format` / schema conforme SDK)
 - [ ] **D.4** Pós-processamento **Zod**: enums inválidos → `unknown`; preencher `classificationRaw`
 - [ ] **D.5** Timeout no cliente + **no máximo 1 retry** em falhas transitórias/parse

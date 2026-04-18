@@ -29,7 +29,9 @@
     "@nestjs/platform-express": "^11.1.19",
     "joi": "^18.1.2",
     "mongoose": "^9.4.1",
+    "openai": "^6.34.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "zod": "^4.3.6"
   }
 }
