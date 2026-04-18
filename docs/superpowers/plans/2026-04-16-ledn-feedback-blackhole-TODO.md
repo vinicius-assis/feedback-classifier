@@ -60,10 +60,10 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 
 ## Fase E — Ingestão síncrona
 
-- [ ] **E.1** DTO `POST /api/feedback`: `rawText`, `source` default `web_form`; máx **8192** caracteres → **400** se exceder
-- [ ] **E.2** Serviço de orquestração: persistir → classificar → merge no documento
-- [ ] **E.3** Sucesso: `classificationStatus: success` + campos preenchidos; resposta **201**
-- [ ] **E.4** Falha LLM após retries: `classificationStatus: failed` + `classificationError`; ainda **201** com `rawText` guardado (sem fingir sucesso)
+- [x] **E.1** DTO `POST /api/feedback`: `rawText`, `source` default `web_form`; máx **8192** caracteres → **400** se exceder
+- [x] **E.2** Serviço de orquestração: persistir → classificar → merge no documento
+- [x] **E.3** Sucesso: `classificationStatus: success` + campos preenchidos; resposta **201**
+- [x] **E.4** Falha LLM após retries: `classificationStatus: failed` + `classificationError`; ainda **201** com `rawText` guardado (sem fingir sucesso)
 - [ ] **E.5** `POST /api/feedback/bulk`: array de `{ rawText }`; resposta **por item** (índice + item ou erro); limite de batch (ex. máx **20**) documentado
 - [ ] **E.6** `POST /api/integrations/slack/feedback`: header de segredo (ex. `X-Ingest-Secret`) vs env; body `text` + `externalMessageId` obrigatórios; `source: slack_like`
 - [ ] **E.7** Idempotência Slack: se `externalMessageId` existir → devolver documento existente com **200** (documentar no README)
