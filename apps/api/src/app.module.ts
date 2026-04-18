@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 import { HealthModule } from './health/health.module';
 
@@ -14,6 +15,12 @@ import { HealthModule } from './health/health.module';
         CORS_ORIGIN: Joi.string().required(),
         PORT: Joi.number().default(3000),
       }),
+    }),
+    MongooseModule.forRootAsync({
+      useFactory: (config: ConfigService) => ({
+        uri: config.get<string>('MONGODB_URI'),
+      }),
+      inject: [ConfigService],
     }),
     HealthModule,
   ],
