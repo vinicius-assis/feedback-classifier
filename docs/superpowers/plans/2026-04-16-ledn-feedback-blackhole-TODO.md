@@ -39,7 +39,7 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 - [ ] **C.6** Índice **unique sparse** em `sourceMetadata.externalMessageId`
 - [x] **C.7** `ConfigModule` + validação na bootstrap: `MONGODB_URI`, `OPENAI_API_KEY`, `SLACK_INGEST_SECRET`, `CORS_ORIGIN`
 - [x] **C.8** `GET /api/health` (liveness)
-- [ ] **C.9** `GET /api/health/ready` (ping Mongo; falha se DB down)
+- [x] **C.9** `GET /api/health/ready` (ping Mongo; falha se DB down)
 
 **Gate:** API sobe; `ready` reflete estado do Mongo.
 
