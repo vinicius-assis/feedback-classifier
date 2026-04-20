@@ -93,7 +93,7 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 - [x] **G.6** Hooks ou queries: lista com filtros, stats, mutações ingest
 - [x] **G.7** `/dashboard`: cards (stats) + tabela + filtros + paginação; realce para `failed`
 - [x] **G.8** `/ingest` e `/ingest/bulk` com toasts (Chakra toast) sucesso/erro
-- [ ] **G.9** Página ou detalhe do item com texto bruto + classificação + erro se houver
+- [x] **G.9** Página ou detalhe do item com texto bruto + classificação + erro se houver
 - [ ] **G.10** CORS na API apontando para origem do Vite (`CORS_ORIGIN`)
 
 **Gate:** fluxo manual web sem erros de consola; API e web falam entre si.
