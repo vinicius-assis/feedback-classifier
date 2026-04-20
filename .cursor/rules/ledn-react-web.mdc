@@ -1,5 +1,5 @@
 ---
-description: React web — Chakra, TanStack Query, English UI, API usage
+description: React web — Chakra (use Chakra MCP for API doubts), TanStack Query, English UI
 globs: apps/web/**/*.{ts,tsx}
 alwaysApply: false
 ---
@@ -7,6 +7,13 @@ alwaysApply: false
 # `apps/web` — React conventions
 
 Apply **`frontend-design`** for layout hierarchy, spacing, and polish **on top of** Chakra UI. Keep **routes and feature scope** from the spec (`/dashboard`, `/ingest`, etc.); English copy; TanStack Query for server state. **Do not** replace Chakra with another design system unless the spec changes.
+
+## Chakra UI API doubts → MCP
+
+Whenever anything is **unclear** about Chakra UI v3—components, props, compound parts, theming/tokens, recipes, **@chakra-ui/charts**, or v2→v3 migration—**resolve it with the Chakra UI MCP** ([MCP Server](https://chakra-ui.com/docs/get-started/ai/mcp-server)) instead of guessing or relying on memory alone.
+
+- Use the MCP server configured for Chakra in Cursor (official setup commonly registers it as **`chakra-ui`** in `mcp.json`; if yours uses a different key, call that server).
+- **Before each MCP tool call**, read the tool’s schema/descriptor so arguments match what the server expects.
 
 ## Stack
 
