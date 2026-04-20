@@ -18,7 +18,8 @@ import {
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useFeedbackList } from '../hooks/useFeedback';
+import { DeleteFeedbackDialog } from '../components/DeleteFeedbackDialog';
+import { useDeleteFeedback, useFeedbackList } from '../hooks/useFeedback';
 import { useFeedbackStats } from '../hooks/useFeedbackStats';
 import type {
   ClassificationStatus,
@@ -106,7 +107,40 @@ function StatBreakdown({
   );
 }
 
-function FeedbackTableRow({ item, onOpen }: { item: FeedbackItem; onOpen: (id: string) => void }) {
+function TrashIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1.1em"
+      height="1.1em"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+    </svg>
+  );
+}
+
+function FeedbackTableRow({
+  item,
+  onOpen,
+  onDelete,
+  isDeleting,
+}: {
+  item: FeedbackItem;
+  onOpen: (id: string) => void;
+  onDelete: (id: string) => void;
+  isDeleting: boolean;
+}) {
   const failed = item.classificationStatus === 'failed';
   return (
     <Table.Row
@@ -139,6 +173,21 @@ function FeedbackTableRow({ item, onOpen }: { item: FeedbackItem; onOpen: (id: s
           '—'
         )}
       </Table.Cell>
+      <Table.Cell onClick={(e) => e.stopPropagation()}>
+        <Button
+          size="xs"
+          variant="ghost"
+          colorPalette="red"
+          aria-label="Remove feedback"
+          loading={isDeleting}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(item._id);
+          }}
+        >
+          <TrashIcon />
+        </Button>
+      </Table.Cell>
     </Table.Row>
   );
 }
@@ -146,9 +195,11 @@ function FeedbackTableRow({ item, onOpen }: { item: FeedbackItem; onOpen: (id: s
 export function DashboardPage() {
   const navigate = useNavigate();
   const [filters, setFilters] = useState<FeedbackFilters>(DEFAULT_FILTERS);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const statsQuery = useFeedbackStats();
   const listQuery = useFeedbackList(filters);
+  const deleteFeedback = useDeleteFeedback();
 
   const stats = statsQuery.data;
 
@@ -443,13 +494,14 @@ export function DashboardPage() {
                   <Table.ColumnHeader>Feature area</Table.ColumnHeader>
                   <Table.ColumnHeader>Urgency</Table.ColumnHeader>
                   <Table.ColumnHeader>Status</Table.ColumnHeader>
+                  <Table.ColumnHeader w="1%">Actions</Table.ColumnHeader>
                 </Table.Row>
               </Table.Header>
               <Table.Body>
                 {listQuery.isLoading
                   ? Array.from({ length: 5 }).map((_, i) => (
                       <Table.Row key={i}>
-                        {Array.from({ length: 7 }).map((__, j) => (
+                        {Array.from({ length: 8 }).map((__, j) => (
                           <Table.Cell key={j}>
                             <Skeleton height="4" />
                           </Table.Cell>
@@ -460,7 +512,7 @@ export function DashboardPage() {
 
                 {!listQuery.isLoading && list && list.data.length === 0 ? (
                   <Table.Row>
-                    <Table.Cell colSpan={7}>
+                    <Table.Cell colSpan={8}>
                       <Text color="fg.muted" py={4} textAlign="center">
                         No feedback matches these filters.
                       </Text>
@@ -474,6 +526,11 @@ export function DashboardPage() {
                         key={item._id}
                         item={item}
                         onOpen={(id) => navigate(`/feedback/${id}`)}
+                        onDelete={(id) => setPendingDeleteId(id)}
+                        isDeleting={
+                          deleteFeedback.isPending &&
+                          deleteFeedback.variables === item._id
+                        }
                       />
                     ))
                   : null}
@@ -482,6 +539,19 @@ export function DashboardPage() {
           </Table.ScrollArea>
         </Stack>
       </VStack>
+
+      <DeleteFeedbackDialog
+        isOpen={pendingDeleteId !== null}
+        onClose={() => setPendingDeleteId(null)}
+        onConfirm={() => {
+          if (!pendingDeleteId) return;
+          deleteFeedback.mutate(pendingDeleteId, {
+            onSuccess: () => setPendingDeleteId(null),
+            onError: () => setPendingDeleteId(null),
+          });
+        }}
+        isDeleting={deleteFeedback.isPending}
+      />
     </Container>
   );
 }

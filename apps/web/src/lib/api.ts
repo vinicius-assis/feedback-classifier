@@ -112,6 +112,10 @@ export function post<T>(path: string, body?: unknown, init?: RequestInit): Promi
   });
 }
 
+export function remove<T = void>(path: string, init?: RequestInit): Promise<T> {
+  return request<T>(path, { ...init, method: 'DELETE' });
+}
+
 export function postWithStatus<T>(
   path: string,
   body?: unknown,
