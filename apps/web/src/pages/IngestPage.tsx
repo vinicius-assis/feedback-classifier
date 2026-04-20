@@ -15,7 +15,7 @@ import { FormEvent, useState } from 'react';
 import { useIngestFeedback, useIngestSlack } from '../hooks/useIngest';
 import { ApiError } from '../lib/api';
 import { toaster } from '../lib/toaster';
-import type { FeedbackSource, SlackFeedbackBody } from '../lib/types';
+import type { FeedbackItem, FeedbackSource, SlackFeedbackBody } from '../lib/types';
 
 const SOURCE_OPTIONS: { value: FeedbackSource; label: string }[] = [
   { value: 'web_form', label: 'Web form' },
@@ -31,6 +31,27 @@ function errorMessage(error: unknown): string {
     return error.message;
   }
   return 'Request failed';
+}
+
+function classificationToast(data: FeedbackItem): {
+  type: 'success' | 'warning';
+  description: string;
+} {
+  if (data.classificationStatus === 'failed') {
+    return { type: 'warning', description: 'Saved · Classification failed' };
+  }
+  if (data.classificationStatus === 'success') {
+    const parts = [
+      data.sentiment && data.sentiment !== 'unknown' ? `Sentiment: ${data.sentiment}` : null,
+      data.featureArea && data.featureArea !== 'unknown' ? `Area: ${data.featureArea}` : null,
+      data.urgency && data.urgency !== 'unknown' ? `Urgency: ${data.urgency}` : null,
+    ].filter(Boolean);
+    return {
+      type: 'success',
+      description: parts.length > 0 ? parts.join(' · ') : 'Classification complete',
+    };
+  }
+  return { type: 'success', description: 'Saved' };
 }
 
 function clearSlackFields(setters: {
@@ -114,19 +135,30 @@ export function IngestPage() {
       ingestSlack.mutate(
         { body, secret: secretTrimmed },
         {
-          onSuccess: (data) => {
-            toaster.create({
-              type: 'success',
-              title: 'Feedback submitted',
-              description: `Saved with id ${data._id}.`,
-            });
-            setRawText('');
-            clearSlackFields({
-              setExternalMessageId,
-              setChannel,
-              setUserDisplayName,
-              setIngestSecret,
-            });
+          onSuccess: ({ data, status }) => {
+            if (status === 200) {
+              toaster.create({
+                type: 'info',
+                title: 'Already submitted',
+                description: 'This message ID already exists — no duplicate created.',
+                closable: true,
+              });
+            } else {
+              const { type, description } = classificationToast(data);
+              toaster.create({
+                type,
+                title: 'Feedback submitted',
+                description,
+                closable: true,
+              });
+              setRawText('');
+              clearSlackFields({
+                setExternalMessageId,
+                setChannel,
+                setUserDisplayName,
+                setIngestSecret,
+              });
+            }
           },
           onError: (error) => {
             toaster.create({
@@ -144,10 +176,12 @@ export function IngestPage() {
       { rawText: trimmed, source },
       {
         onSuccess: (data) => {
+          const { type, description } = classificationToast(data);
           toaster.create({
-            type: 'success',
+            type,
             title: 'Feedback submitted',
-            description: `Saved with id ${data._id}.`,
+            description,
+            closable: true,
           });
           setRawText('');
         },

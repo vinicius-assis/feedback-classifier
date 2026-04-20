@@ -50,15 +50,29 @@ export function IngestBulkPage() {
       { items: lines.map((rawText) => ({ rawText })) },
       {
         onSuccess: (results) => {
-          const fulfilled = results.filter((r) => r.status === 'fulfilled').length;
-          const rejected = results.filter((r) => r.status === 'rejected').length;
-          const type = rejected > 0 ? 'warning' : 'success';
+          const fulfilled = results.filter((r) => r.status === 'fulfilled');
+          const rejected = results.filter((r) => r.status === 'rejected');
+          const classificationFailed = fulfilled.filter(
+            (r) => r.status === 'fulfilled' && r.data.classificationStatus === 'failed',
+          ).length;
+          const hasIssues = rejected.length > 0 || classificationFailed > 0;
+          const type = rejected.length > 0 ? 'error' : classificationFailed > 0 ? 'warning' : 'success';
+
+          const parts: string[] = [`${fulfilled.length} saved`];
+          if (classificationFailed > 0) {
+            parts.push(`${classificationFailed} classification failure${classificationFailed > 1 ? 's' : ''}`);
+          }
+          if (rejected.length > 0) {
+            parts.push(`${rejected.length} rejected`);
+          }
+
           toaster.create({
             type,
-            title: 'Bulk ingest complete',
-            description: `${fulfilled} submitted successfully, ${rejected} failed.`,
+            title: hasIssues ? 'Bulk ingest complete with issues' : 'Bulk ingest complete',
+            description: parts.join(' · '),
+            closable: true,
           });
-          if (rejected === 0) {
+          if (rejected.length === 0) {
             setBulkText('');
           }
         },

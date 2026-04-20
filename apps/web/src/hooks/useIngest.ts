@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { post } from '../lib/api';
+import { post, postWithStatus } from '../lib/api';
 import type {
   BulkFeedbackBody,
   BulkIngestResultItem,
@@ -36,7 +36,7 @@ export function useIngestSlack() {
   const invalidate = useInvalidateFeedback();
   return useMutation({
     mutationFn: ({ body, secret }: { body: SlackFeedbackBody; secret: string }) =>
-      post<FeedbackItem>('/integrations/slack/feedback', body, {
+      postWithStatus<FeedbackItem>('/integrations/slack/feedback', body, {
         headers: { 'X-Ingest-Secret': secret },
       }),
     onSuccess: invalidate,

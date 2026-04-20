@@ -71,7 +71,10 @@ function errorMessageFromBody(body: unknown, fallback: string): string {
   return fallback;
 }
 
-async function request<T>(path: string, init: RequestInit): Promise<T> {
+async function requestCore<T>(
+  path: string,
+  init: RequestInit,
+): Promise<{ data: T; status: number }> {
   const url = buildUrl(path);
   const headers = new Headers(init.headers);
   if (!headers.has('Accept')) {
@@ -89,7 +92,12 @@ async function request<T>(path: string, init: RequestInit): Promise<T> {
     throw new ApiError(errorMessageFromBody(data, fallback), res.status, data);
   }
 
-  return data as T;
+  return { data: data as T, status: res.status };
+}
+
+async function request<T>(path: string, init: RequestInit): Promise<T> {
+  const { data } = await requestCore<T>(path, init);
+  return data;
 }
 
 export function get<T>(path: string, init?: RequestInit): Promise<T> {
@@ -98,6 +106,18 @@ export function get<T>(path: string, init?: RequestInit): Promise<T> {
 
 export function post<T>(path: string, body?: unknown, init?: RequestInit): Promise<T> {
   return request<T>(path, {
+    ...init,
+    method: 'POST',
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+}
+
+export function postWithStatus<T>(
+  path: string,
+  body?: unknown,
+  init?: RequestInit,
+): Promise<{ data: T; status: number }> {
+  return requestCore<T>(path, {
     ...init,
     method: 'POST',
     body: body === undefined ? undefined : JSON.stringify(body),

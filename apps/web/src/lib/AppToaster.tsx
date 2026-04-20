@@ -8,7 +8,7 @@ export function AppToaster() {
     <Portal>
       <Toaster toaster={toaster}>
         {(toast) => (
-          <Toast.Root>
+          <Toast.Root width="sm">
             <Toast.Indicator />
             <Stack gap="1" flex="1" maxW="100%">
               {toast.title != null && String(toast.title).length > 0 ? (
