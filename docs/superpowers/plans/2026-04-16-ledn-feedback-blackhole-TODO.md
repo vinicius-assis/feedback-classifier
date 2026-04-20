@@ -85,10 +85,10 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 
 ## Fase G — Web React
 
-- [ ] **G.1** Vite + React + TS em `apps/web`
-- [ ] **G.2** Chakra `Provider` + tema base
-- [ ] **G.3** React Router: `/dashboard`, `/ingest`, `/ingest/bulk`, `/feedback/:id`
-- [ ] **G.4** `VITE_API_BASE_URL` + cliente HTTP (fetch/axios) centralizado
+- [x] **G.1** Vite + React + TS em `apps/web`
+- [x] **G.2** Chakra `Provider` + tema base
+- [x] **G.3** React Router: `/dashboard`, `/ingest`, `/ingest/bulk`, `/feedback/:id`
+- [x] **G.4** `VITE_API_BASE_URL` + cliente HTTP (fetch/axios) centralizado
 - [ ] **G.5** `QueryClientProvider` + TanStack Query
 - [ ] **G.6** Hooks ou queries: lista com filtros, stats, mutações ingest
 - [ ] **G.7** `/dashboard`: cards (stats) + tabela + filtros + paginação; realce para `failed`
