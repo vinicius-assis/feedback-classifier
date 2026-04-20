@@ -14,6 +14,8 @@ async function bootstrap() {
     }),
   );
   const configService = app.get(ConfigService);
+  const corsOrigin = configService.get<string>('CORS_ORIGIN');
+  app.enableCors({ origin: corsOrigin });
   const portRaw = configService.get<string | number>('PORT');
   const port =
     typeof portRaw === 'number' ? portRaw : Number.parseInt(String(portRaw ?? ''), 10) || 3000;
