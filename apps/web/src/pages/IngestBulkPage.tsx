@@ -56,11 +56,14 @@ export function IngestBulkPage() {
             (r) => r.status === 'fulfilled' && r.data.classificationStatus === 'failed',
           ).length;
           const hasIssues = rejected.length > 0 || classificationFailed > 0;
-          const type = rejected.length > 0 ? 'error' : classificationFailed > 0 ? 'warning' : 'success';
+          const type =
+            rejected.length > 0 ? 'error' : classificationFailed > 0 ? 'warning' : 'success';
 
           const parts: string[] = [`${fulfilled.length} saved`];
           if (classificationFailed > 0) {
-            parts.push(`${classificationFailed} classification failure${classificationFailed > 1 ? 's' : ''}`);
+            parts.push(
+              `${classificationFailed} classification failure${classificationFailed > 1 ? 's' : ''}`,
+            );
           }
           if (rejected.length > 0) {
             parts.push(`${rejected.length} rejected`);
