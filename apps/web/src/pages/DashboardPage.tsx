@@ -198,12 +198,22 @@ export function DashboardPage() {
   return (
     <Container maxW="7xl" py={8}>
       <VStack align="stretch" gap={8}>
-        <VStack align="stretch" gap={1}>
-          <Heading as="h1" size="xl">
-            Dashboard
-          </Heading>
-          <Text color="fg.muted">Feedback overview, filters, and recent items.</Text>
-        </VStack>
+        <HStack justify="space-between" align="flex-start" flexWrap="wrap" gap={4}>
+          <VStack align="stretch" gap={1}>
+            <Heading as="h1" size="xl">
+              Dashboard
+            </Heading>
+            <Text color="fg.muted">Feedback overview, filters, and recent items.</Text>
+          </VStack>
+          <HStack gap={2} flexShrink={0}>
+            <Button colorPalette="brand" onClick={() => navigate('/ingest')}>
+              + Add feedback
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/ingest/bulk')}>
+              Bulk import
+            </Button>
+          </HStack>
+        </HStack>
 
         {statsQuery.isError ? (
           <Alert.Root status="error" variant="subtle">

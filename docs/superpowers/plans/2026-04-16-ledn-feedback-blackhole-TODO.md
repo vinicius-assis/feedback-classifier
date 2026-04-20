@@ -96,8 +96,8 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 - [x] **G.9** Página ou detalhe do item com texto bruto + classificação + erro se houver
 - [x] **G.10** CORS na API apontando para origem do Vite (`CORS_ORIGIN`)
 - [x] **G.11** Navbar/header global com links para `Dashboard`, `Ingest` e `Bulk Ingest` — sem navegação, as páginas são ilhas inacessíveis
-- [ ] **G.12** Botões de ação no header do dashboard (`+ Add feedback`, `Bulk import`) para CTA visível sem sair da página
-- [ ] **G.13** Customizar tema Chakra: fonte diferenciada, cor primária, tokens básicos de cor — `theme.ts` atual está vazio (`{}`)
+- [x] **G.12** Botões de ação no header do dashboard (`+ Add feedback`, `Bulk import`) para CTA visível sem sair da página
+- [x] **G.13** Customizar tema Chakra: fonte diferenciada, cor primária, tokens básicos de cor — `theme.ts` atual está vazio (`{}`)
 - [ ] **G.14** `IngestPage`: adaptar formulário quando `source = slack_like` para exibir campos `externalMessageId`, `channel`, `userDisplayName` e o header `X-Ingest-Secret` (os campos existem no schema mas a UI não os expõe)
 - [ ] **G.15** Página `/integrations` com exemplo `curl` formatado para o endpoint Slack-like — diferenciador visual no Loom e cobre o fluxo CS/Sales do spec
 
