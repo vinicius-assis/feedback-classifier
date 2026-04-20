@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -15,6 +15,37 @@ import {
   FeedbackSource,
   SourceMetadata,
 } from './schemas/feedback-item.schema';
+import * as XLSX from 'xlsx';
+
+const RAW_TEXT_MAX_LENGTH = 8192;
+const BULK_BATCH_SIZE = 20;
+
+/** First-column header labels (normalized) we skip when present on the first non-empty row. */
+const IMPORT_HEADER_LABELS = new Set([
+  'feedback',
+  'feedbacks',
+  'comment',
+  'comments',
+  'text',
+  'message',
+  'messages',
+  'notes',
+  'description',
+  'content',
+  'body',
+  'rawtext',
+  'rawtexts',
+]);
+
+export type FeedbackImportErrorRow = { row: number; message: string };
+
+export type FeedbackImportResult = {
+  total: number;
+  fulfilled: number;
+  failed: number;
+  skipped: number;
+  errors: FeedbackImportErrorRow[];
+};
 
 export type BulkIngestResultItem =
   | { index: number; status: 'fulfilled'; data: FeedbackItemDocument }
@@ -179,10 +210,13 @@ export class FeedbackService {
     return filter;
   }
 
-  async ingestBulk(items: BulkFeedbackItemDto[]): Promise<BulkIngestResultItem[]> {
+  async ingestBulk(
+    items: BulkFeedbackItemDto[],
+    source: FeedbackSource = 'web_bulk',
+  ): Promise<BulkIngestResultItem[]> {
     const settled = await Promise.allSettled(
       items.map((item, index) =>
-        this.persistFeedback({ rawText: item.rawText, source: 'web_bulk' }).then((doc) => ({
+        this.persistFeedback({ rawText: item.rawText, source }).then((doc) => ({
           index,
           doc,
         })),
@@ -204,6 +238,139 @@ export class FeedbackService {
         error: reason instanceof Error ? reason.message : String(reason),
       };
     });
+  }
+
+  /**
+   * Parses a CSV or XLSX buffer: one feedback per row, first column only.
+   * Batches rows into chunks of {@link BULK_BATCH_SIZE} and ingests with source `web_file`.
+   */
+  async importFile(buffer: Buffer, mimetype: string, originalname?: string): Promise<FeedbackImportResult> {
+    const allowed = new Set([
+      'text/csv',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ]);
+
+    let resolvedMime = mimetype;
+    if (!allowed.has(resolvedMime) && originalname) {
+      const lower = originalname.toLowerCase();
+      if (lower.endsWith('.csv')) {
+        resolvedMime = 'text/csv';
+      } else if (lower.endsWith('.xlsx')) {
+        resolvedMime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      }
+    }
+
+    if (!allowed.has(resolvedMime)) {
+      throw new BadRequestException(`Unsupported file type: ${mimetype || 'unknown'}`);
+    }
+
+    const { rows, skipped } = this.parseFeedbackSpreadsheet(buffer);
+    if (rows.length === 0) {
+      throw new BadRequestException('No feedback rows found in file');
+    }
+
+    let fulfilled = 0;
+    let failed = 0;
+    const errors: FeedbackImportErrorRow[] = [];
+
+    for (let offset = 0; offset < rows.length; offset += BULK_BATCH_SIZE) {
+      const slice = rows.slice(offset, offset + BULK_BATCH_SIZE);
+      const batchItems: BulkFeedbackItemDto[] = slice.map((r) => ({ rawText: r.rawText }));
+      const results = await this.ingestBulk(batchItems, 'web_file');
+      for (const r of results) {
+        const sheetRow = slice[r.index]!.sheetRow;
+        if (r.status === 'fulfilled') {
+          fulfilled += 1;
+        } else {
+          failed += 1;
+          errors.push({ row: sheetRow, message: r.error });
+        }
+      }
+    }
+
+    return {
+      total: rows.length,
+      fulfilled,
+      failed,
+      skipped,
+      errors,
+    };
+  }
+
+  private parseFeedbackSpreadsheet(buffer: Buffer): {
+    rows: { sheetRow: number; rawText: string }[];
+    skipped: number;
+  } {
+    let workbook: XLSX.WorkBook;
+    try {
+      workbook = XLSX.read(buffer, { type: 'buffer', cellDates: true });
+    } catch {
+      throw new BadRequestException('Could not read spreadsheet file');
+    }
+
+    const sheetName = workbook.SheetNames[0];
+    if (!sheetName) {
+      throw new BadRequestException('File has no sheets');
+    }
+
+    const sheet = workbook.Sheets[sheetName];
+    const matrix = XLSX.utils.sheet_to_json<(string | number | boolean | Date | null | undefined)[]>(
+      sheet,
+      { header: 1, defval: '', raw: false },
+    );
+
+    let skippedBlanks = 0;
+    const nonEmpty: { sheetRow: number; text: string }[] = [];
+
+    for (let i = 0; i < matrix.length; i++) {
+      const row = matrix[i];
+      const sheetRow = i + 1;
+      const firstCell = Array.isArray(row) ? row[0] : undefined;
+      const text = FeedbackService.cellToString(firstCell).trim();
+      if (!text) {
+        skippedBlanks += 1;
+        continue;
+      }
+      nonEmpty.push({ sheetRow, text });
+    }
+
+    let skippedHeader = 0;
+    let start = 0;
+    if (nonEmpty.length > 0 && FeedbackService.isLikelyImportHeader(nonEmpty[0]!.text)) {
+      skippedHeader = 1;
+      start = 1;
+    }
+
+    const rows: { sheetRow: number; rawText: string }[] = [];
+    for (let j = start; j < nonEmpty.length; j++) {
+      const { sheetRow, text } = nonEmpty[j]!;
+      const rawText =
+        text.length > RAW_TEXT_MAX_LENGTH ? text.slice(0, RAW_TEXT_MAX_LENGTH) : text;
+      rows.push({ sheetRow, rawText });
+    }
+
+    return { rows, skipped: skippedBlanks + skippedHeader };
+  }
+
+  private static cellToString(value: unknown): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      return String(value);
+    }
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+    return String(value);
+  }
+
+  private static isLikelyImportHeader(value: string): boolean {
+    const key = value.trim().toLowerCase().replace(/[\s_-]+/g, '');
+    return IMPORT_HEADER_LABELS.has(key);
   }
 
   private async persistFeedback(params: {

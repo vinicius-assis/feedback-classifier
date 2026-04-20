@@ -14,7 +14,7 @@ export class SourceMetadata {
   userDisplayName?: string;
 }
 
-export const FEEDBACK_SOURCES = ['web_form', 'web_bulk', 'slack_like'] as const;
+export const FEEDBACK_SOURCES = ['web_form', 'web_bulk', 'web_file', 'slack_like'] as const;
 export type FeedbackSource = (typeof FEEDBACK_SOURCES)[number];
 
 /** Closed taxonomy (v1) — keep in sync with prompt / Zod in Phase D. */

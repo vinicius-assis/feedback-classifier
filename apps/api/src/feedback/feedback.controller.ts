@@ -1,4 +1,18 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { BulkFeedbackDto } from './dto/bulk-feedback.dto';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
@@ -49,5 +63,16 @@ export class FeedbackController {
   @HttpCode(HttpStatus.CREATED)
   bulk(@Body() dto: BulkFeedbackDto) {
     return this.feedbackService.ingestBulk(dto.items);
+  }
+
+  /** Upload `.csv` or `.xlsx`: one feedback per row (first column). Source `web_file`. */
+  @Post('import')
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  importFile(@UploadedFile() file?: Express.Multer.File) {
+    if (!file?.buffer?.length) {
+      throw new BadRequestException('file is required');
+    }
+    return this.feedbackService.importFile(file.buffer, file.mimetype, file.originalname);
   }
 }
