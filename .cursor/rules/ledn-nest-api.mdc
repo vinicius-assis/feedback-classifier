@@ -32,6 +32,7 @@ Apply **`nestjs-best-practices`** for idiomatic Nest (modules, DI, testing) **wh
 | GET | `/api/feedback` |
 | GET | `/api/feedback/:id` |
 | GET | `/api/feedback/stats/summary` |
+| DELETE | `/api/feedback/:id` |
 | GET | `/api/health` |
 | GET | `/api/health/ready` |
 

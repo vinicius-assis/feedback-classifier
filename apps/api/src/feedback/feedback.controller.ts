@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common';
 
 import { BulkFeedbackDto } from './dto/bulk-feedback.dto';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
@@ -24,6 +24,18 @@ export class FeedbackController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.feedbackService.findById(id);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  remove(@Param('id') id: string) {
+    return this.feedbackService.deleteById(id);
+  }
+
+  @Delete()
+  @HttpCode(HttpStatus.OK)
+  removeAll() {
+    return this.feedbackService.deleteAll();
   }
 
   @Post()

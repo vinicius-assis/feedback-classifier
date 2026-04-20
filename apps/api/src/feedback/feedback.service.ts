@@ -36,6 +36,10 @@ export type FeedbackListResult = {
   limit: number;
 };
 
+export type DeleteAllFeedbackResult = {
+  deletedCount: number;
+};
+
 @Injectable()
 export class FeedbackService {
   constructor(
@@ -101,6 +105,28 @@ export class FeedbackService {
       }
       throw err;
     }
+  }
+
+  async deleteById(id: string): Promise<void> {
+    try {
+      const result = await this.feedbackModel.findByIdAndDelete(id).exec();
+      if (!result) {
+        throw new NotFoundException('Feedback item not found');
+      }
+    } catch (err) {
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+      if (err instanceof Error && err.name === 'CastError') {
+        throw new NotFoundException('Feedback item not found');
+      }
+      throw err;
+    }
+  }
+
+  async deleteAll(): Promise<DeleteAllFeedbackResult> {
+    const result = await this.feedbackModel.deleteMany({}).exec();
+    return { deletedCount: result.deletedCount ?? 0 };
   }
 
   async getStatsSummary(): Promise<FeedbackStatsSummary> {
