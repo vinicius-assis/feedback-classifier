@@ -4,6 +4,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
+import { AppToaster } from './lib/AppToaster';
 import { system } from './theme';
 
 const queryClient = new QueryClient();
@@ -17,6 +18,7 @@ createRoot(rootEl).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ChakraProvider value={system}>
+        <AppToaster />
         <BrowserRouter>
           <App />
         </BrowserRouter>
