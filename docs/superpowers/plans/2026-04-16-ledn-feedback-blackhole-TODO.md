@@ -89,8 +89,8 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 - [x] **G.2** Chakra `Provider` + tema base
 - [x] **G.3** React Router: `/dashboard`, `/ingest`, `/ingest/bulk`, `/feedback/:id`
 - [x] **G.4** `VITE_API_BASE_URL` + cliente HTTP (fetch/axios) centralizado
-- [ ] **G.5** `QueryClientProvider` + TanStack Query
-- [ ] **G.6** Hooks ou queries: lista com filtros, stats, mutações ingest
+- [x] **G.5** `QueryClientProvider` + TanStack Query
+- [x] **G.6** Hooks ou queries: lista com filtros, stats, mutações ingest
 - [ ] **G.7** `/dashboard`: cards (stats) + tabela + filtros + paginação; realce para `failed`
 - [ ] **G.8** `/ingest` e `/ingest/bulk` com toasts (Chakra toast) sucesso/erro
 - [ ] **G.9** Página ou detalhe do item com texto bruto + classificação + erro se houver

@@ -25,6 +25,23 @@ function buildUrl(path: string): string {
   return `${base}${normalized}`;
 }
 
+/** Append URL search params; omits undefined, null, and empty string values. */
+export function withQuery(
+  path: string,
+  params: Record<string, string | number | boolean | undefined | null>,
+): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null) continue;
+    if (typeof value === 'string' && value === '') continue;
+    search.set(key, String(value));
+  }
+  const qs = search.toString();
+  if (!qs) return path;
+  const sep = path.includes('?') ? '&' : '?';
+  return `${path}${sep}${qs}`;
+}
+
 async function parseResponseBody<T>(res: Response): Promise<T> {
   if (res.status === 204) {
     return undefined as T;
