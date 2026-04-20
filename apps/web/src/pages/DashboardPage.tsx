@@ -15,9 +15,16 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useMemo, useState } from 'react';
+// Badge, Card, Skeleton kept for KPI cards; Stack kept for loading states
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { ClassificationChart } from '../components/charts/ClassificationChart';
+import { FeatureAreaChart } from '../components/charts/FeatureAreaChart';
+import { SentimentChart } from '../components/charts/SentimentChart';
+import { SourceMixChart } from '../components/charts/SourceMixChart';
+import { useCountUp } from '../hooks/useCountUp';
+import { UrgencyChart } from '../components/charts/UrgencyChart';
 import { DeleteFeedbackDialog } from '../components/DeleteFeedbackDialog';
 import { useDeleteFeedback, useFeedbackList } from '../hooks/useFeedback';
 import { useFeedbackStats } from '../hooks/useFeedbackStats';
@@ -56,10 +63,6 @@ function bucketCounts(buckets: { _id: string | null; count: number }[]) {
   return m;
 }
 
-function formatLabel(key: string) {
-  return key.replace(/_/g, ' ');
-}
-
 function truncateText(text: string, max = 72) {
   if (text.length <= max) return text;
   return `${text.slice(0, max)}…`;
@@ -77,34 +80,12 @@ function formatDate(iso?: string) {
   }
 }
 
-function StatBreakdown({
-  title,
-  orderedKeys,
-  counts,
-}: {
-  title: string;
-  orderedKeys: string[];
-  counts: Map<string, number>;
-}) {
-  return (
-    <Card.Root variant="subtle">
-      <Card.Header>
-        <Card.Title>{title}</Card.Title>
-      </Card.Header>
-      <Card.Body>
-        <Stack gap={1}>
-          {orderedKeys.map((key) => (
-            <HStack key={key} justify="space-between" gap={4}>
-              <Text textTransform="capitalize" color="fg.muted">
-                {formatLabel(key)}
-              </Text>
-              <Text fontWeight="medium">{counts.get(key) ?? 0}</Text>
-            </HStack>
-          ))}
-        </Stack>
-      </Card.Body>
-    </Card.Root>
-  );
+function AnimatedCount({
+  value,
+  ...textProps
+}: { value: number } & React.ComponentProps<typeof Text>) {
+  const animated = useCountUp(value);
+  return <Text {...textProps}>{animated.toLocaleString()}</Text>;
 }
 
 function TrashIcon() {
@@ -203,14 +184,6 @@ export function DashboardPage() {
 
   const stats = statsQuery.data;
 
-  const sentimentCounts = useMemo(
-    () => (stats ? bucketCounts(stats.bySentiment) : new Map<string, number>()),
-    [stats],
-  );
-  const urgencyCounts = useMemo(
-    () => (stats ? bucketCounts(stats.byUrgency) : new Map<string, number>()),
-    [stats],
-  );
   const classificationCounts = useMemo(
     () => (stats ? bucketCounts(stats.byClassificationStatus) : new Map<string, number>()),
     [stats],
@@ -219,6 +192,10 @@ export function DashboardPage() {
   const totalCount = stats?.total?.[0]?.count ?? 0;
   const successCount = classificationCounts.get('success') ?? 0;
   const failedCount = classificationCounts.get('failed') ?? 0;
+  const activeSourceChannels = useMemo(() => {
+    if (!stats?.bySource) return 0;
+    return stats.bySource.filter((b) => (b.count ?? 0) > 0).length;
+  }, [stats]);
 
   const list = listQuery.data;
   const totalItems = list?.total ?? 0;
@@ -247,14 +224,16 @@ export function DashboardPage() {
     }));
 
   return (
-    <Container maxW="7xl" py={8}>
-      <VStack align="stretch" gap={8}>
-        <HStack justify="space-between" align="flex-start" flexWrap="wrap" gap={4}>
-          <VStack align="stretch" gap={1}>
-            <Heading as="h1" size="xl">
+    <Container maxW="7xl" py={{ base: 6, md: 10 }}>
+      <VStack align="stretch" gap={{ base: 8, md: 10 }}>
+        <HStack justify="space-between" align="flex-start" flexWrap="wrap" gap={6}>
+          <VStack align="stretch" gap={2} maxW="2xl">
+            <Heading as="h1" size="2xl" fontWeight="semibold" letterSpacing="-0.02em">
               Dashboard
             </Heading>
-            <Text color="fg.muted">Feedback overview, filters, and recent items.</Text>
+            <Text color="fg.muted" fontSize="md" lineHeight="tall">
+              Live feedback intelligence — volume, classification health, and trends at a glance.
+            </Text>
           </VStack>
           <HStack gap={2} flexShrink={0}>
             <Button colorPalette="brand" onClick={() => navigate('/ingest')}>
@@ -273,68 +252,150 @@ export function DashboardPage() {
           </Alert.Root>
         ) : null}
 
-        <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} gap={4}>
-          <Card.Root variant="subtle">
-            <Card.Header>
-              <Card.Title>Total feedback</Card.Title>
+        <SimpleGrid columns={{ base: 1, sm: 2, xl: 4 }} gap={4}>
+          <Card.Root
+            variant="outline"
+            overflow="hidden"
+            position="relative"
+            transition="box-shadow 0.2s ease, border-color 0.2s ease"
+            _hover={{ boxShadow: 'md' }}
+            _before={{
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '3px',
+              bg: 'brand.solid',
+              opacity: 0.85,
+            }}
+          >
+            <Card.Header pb={1}>
+              <Card.Title fontSize="sm" fontWeight="medium" color="fg.muted">
+                Total feedback
+              </Card.Title>
             </Card.Header>
-            <Card.Body>
+            <Card.Body pt={0}>
               {statsQuery.isLoading ? (
-                <Skeleton height="10" />
+                <Skeleton height="12" maxW="120px" />
               ) : (
-                <Text fontSize="3xl" fontWeight="bold">
-                  {totalCount}
-                </Text>
+                <AnimatedCount
+                  value={totalCount}
+                  fontSize="4xl"
+                  fontWeight="bold"
+                  letterSpacing="-0.03em"
+                  lineHeight="1"
+                />
               )}
             </Card.Body>
           </Card.Root>
 
-          {statsQuery.isLoading ? (
-            <>
-              <Skeleton height="140px" borderRadius="l2" />
-              <Skeleton height="140px" borderRadius="l2" />
-            </>
-          ) : (
-            <>
-              <StatBreakdown
-                title="By sentiment"
-                orderedKeys={SENTIMENT_OPTIONS}
-                counts={sentimentCounts}
-              />
-              <StatBreakdown
-                title="By urgency"
-                orderedKeys={URGENCY_OPTIONS}
-                counts={urgencyCounts}
-              />
-            </>
-          )}
-
-          <Card.Root variant="subtle" borderColor={failedCount > 0 ? 'red.emphasized' : undefined}>
-            <Card.Header>
-              <Card.Title>Classification</Card.Title>
+          <Card.Root
+            variant="outline"
+            overflow="hidden"
+            transition="box-shadow 0.2s ease"
+            _hover={{ boxShadow: 'md' }}
+          >
+            <Card.Header pb={1}>
+              <Card.Title fontSize="sm" fontWeight="medium" color="fg.muted">
+                Classified (success)
+              </Card.Title>
             </Card.Header>
-            <Card.Body>
+            <Card.Body pt={0}>
               {statsQuery.isLoading ? (
-                <Skeleton height="16" />
+                <Skeleton height="12" maxW="120px" />
               ) : (
-                <Stack gap={2}>
-                  <HStack justify="space-between">
-                    <Text color="fg.muted">Success</Text>
-                    <Badge colorPalette="green" variant="subtle">
-                      {successCount}
-                    </Badge>
-                  </HStack>
-                  <HStack justify="space-between">
-                    <Text color="fg.muted">Failed</Text>
-                    <Badge colorPalette="red" variant="subtle">
-                      {failedCount}
-                    </Badge>
-                  </HStack>
-                </Stack>
+                <AnimatedCount
+                  value={successCount}
+                  fontSize="4xl"
+                  fontWeight="bold"
+                  color="green.fg"
+                  letterSpacing="-0.03em"
+                />
+              )}
+            </Card.Body>
+          </Card.Root>
+
+          <Card.Root
+            variant="outline"
+            overflow="hidden"
+            borderColor={failedCount > 0 ? 'red.emphasized' : undefined}
+            transition="box-shadow 0.2s ease"
+            _hover={{ boxShadow: 'md' }}
+          >
+            <Card.Header pb={1}>
+              <Card.Title fontSize="sm" fontWeight="medium" color="fg.muted">
+                Classification failed
+              </Card.Title>
+            </Card.Header>
+            <Card.Body pt={0}>
+              {statsQuery.isLoading ? (
+                <Skeleton height="12" maxW="120px" />
+              ) : (
+                <AnimatedCount
+                  value={failedCount}
+                  fontSize="4xl"
+                  fontWeight="bold"
+                  color={failedCount > 0 ? 'red.fg' : 'fg'}
+                  letterSpacing="-0.03em"
+                />
+              )}
+            </Card.Body>
+          </Card.Root>
+
+          <Card.Root
+            variant="outline"
+            transition="box-shadow 0.2s ease"
+            _hover={{ boxShadow: 'md' }}
+          >
+            <Card.Header pb={1}>
+              <Card.Title fontSize="sm" fontWeight="medium" color="fg.muted">
+                Active source channels
+              </Card.Title>
+            </Card.Header>
+            <Card.Body pt={0}>
+              {statsQuery.isLoading ? (
+                <Skeleton height="12" maxW="120px" />
+              ) : (
+                <HStack gap={2} align="baseline">
+                  <AnimatedCount
+                    value={activeSourceChannels}
+                    fontSize="4xl"
+                    fontWeight="bold"
+                    letterSpacing="-0.03em"
+                  />
+                  <Text fontSize="sm" color="fg.muted">
+                    / {SOURCE_OPTIONS.length}
+                  </Text>
+                </HStack>
               )}
             </Card.Body>
           </Card.Root>
         </SimpleGrid>
+
+        <VStack align="stretch" gap={4}>
+          <Heading
+            size="sm"
+            fontWeight="semibold"
+            color="fg.muted"
+            textTransform="uppercase"
+            letterSpacing="0.08em"
+          >
+            Insights
+          </Heading>
+          <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4} alignItems="stretch">
+            <SentimentChart buckets={stats?.bySentiment} isLoading={statsQuery.isLoading} />
+            <UrgencyChart buckets={stats?.byUrgency} isLoading={statsQuery.isLoading} />
+          </SimpleGrid>
+          <SimpleGrid columns={{ base: 1, lg: 3 }} gap={4} alignItems="stretch">
+            <FeatureAreaChart buckets={stats?.byFeatureArea} isLoading={statsQuery.isLoading} />
+            <ClassificationChart
+              buckets={stats?.byClassificationStatus}
+              isLoading={statsQuery.isLoading}
+            />
+            <SourceMixChart buckets={stats?.bySource} isLoading={statsQuery.isLoading} />
+          </SimpleGrid>
+        </VStack>
 
         <Stack gap={4}>
           <Heading size="md">Filters</Heading>
@@ -528,8 +589,7 @@ export function DashboardPage() {
                         onOpen={(id) => navigate(`/feedback/${id}`)}
                         onDelete={(id) => setPendingDeleteId(id)}
                         isDeleting={
-                          deleteFeedback.isPending &&
-                          deleteFeedback.variables === item._id
+                          deleteFeedback.isPending && deleteFeedback.variables === item._id
                         }
                       />
                     ))
