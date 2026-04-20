@@ -87,4 +87,6 @@ export type BulkFeedbackBody = {
 export type SlackFeedbackBody = {
   text: string;
   externalMessageId: string;
+  channel?: string;
+  userDisplayName?: string;
 };

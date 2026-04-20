@@ -16,10 +16,22 @@ export class IntegrationsService {
       return { doc: existing, created: false };
     }
 
+    const sourceMetadata: {
+      externalMessageId: string;
+      channel?: string;
+      userDisplayName?: string;
+    } = { externalMessageId: dto.externalMessageId };
+    if (dto.channel !== undefined && dto.channel !== '') {
+      sourceMetadata.channel = dto.channel;
+    }
+    if (dto.userDisplayName !== undefined && dto.userDisplayName !== '') {
+      sourceMetadata.userDisplayName = dto.userDisplayName;
+    }
+
     const doc = await this.feedbackService.ingestWithOptions({
       rawText: dto.text,
       source: 'slack_like',
-      sourceMetadata: { externalMessageId: dto.externalMessageId },
+      sourceMetadata,
     });
 
     return { doc, created: true };

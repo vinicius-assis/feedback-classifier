@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class SlackFeedbackDto {
   @IsString()
@@ -9,4 +9,14 @@ export class SlackFeedbackDto {
   @IsString()
   @IsNotEmpty()
   externalMessageId!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(512)
+  channel?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(256)
+  userDisplayName?: string;
 }

@@ -3,6 +3,7 @@ import {
   Container,
   Field,
   Heading,
+  Input,
   NativeSelect,
   Stack,
   Text,
@@ -11,10 +12,10 @@ import {
 } from '@chakra-ui/react';
 import { FormEvent, useState } from 'react';
 
-import { useIngestFeedback } from '../hooks/useIngest';
+import { useIngestFeedback, useIngestSlack } from '../hooks/useIngest';
 import { ApiError } from '../lib/api';
 import { toaster } from '../lib/toaster';
-import type { FeedbackSource } from '../lib/types';
+import type { FeedbackSource, SlackFeedbackBody } from '../lib/types';
 
 const SOURCE_OPTIONS: { value: FeedbackSource; label: string }[] = [
   { value: 'web_form', label: 'Web form' },
@@ -32,10 +33,42 @@ function errorMessage(error: unknown): string {
   return 'Request failed';
 }
 
+function clearSlackFields(setters: {
+  setExternalMessageId: (v: string) => void;
+  setChannel: (v: string) => void;
+  setUserDisplayName: (v: string) => void;
+  setIngestSecret: (v: string) => void;
+}) {
+  setters.setExternalMessageId('');
+  setters.setChannel('');
+  setters.setUserDisplayName('');
+  setters.setIngestSecret('');
+}
+
 export function IngestPage() {
   const [rawText, setRawText] = useState('');
   const [source, setSource] = useState<FeedbackSource>('web_form');
-  const mutation = useIngestFeedback();
+  const [externalMessageId, setExternalMessageId] = useState('');
+  const [channel, setChannel] = useState('');
+  const [userDisplayName, setUserDisplayName] = useState('');
+  const [ingestSecret, setIngestSecret] = useState('');
+
+  const ingestFeedback = useIngestFeedback();
+  const ingestSlack = useIngestSlack();
+
+  const isPending = ingestFeedback.isPending || ingestSlack.isPending;
+
+  const handleSourceChange = (next: FeedbackSource) => {
+    if (next !== 'slack_like') {
+      clearSlackFields({
+        setExternalMessageId,
+        setChannel,
+        setUserDisplayName,
+        setIngestSecret,
+      });
+    }
+    setSource(next);
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -49,7 +82,65 @@ export function IngestPage() {
       return;
     }
 
-    mutation.mutate(
+    if (source === 'slack_like') {
+      const idTrimmed = externalMessageId.trim();
+      const secretTrimmed = ingestSecret.trim();
+      if (!idTrimmed) {
+        toaster.create({
+          type: 'error',
+          title: 'Validation error',
+          description: 'External message ID is required for Slack-like ingest.',
+        });
+        return;
+      }
+      if (!secretTrimmed) {
+        toaster.create({
+          type: 'error',
+          title: 'Validation error',
+          description: 'Ingest secret is required for Slack-like ingest.',
+        });
+        return;
+      }
+
+      const body: SlackFeedbackBody = {
+        text: trimmed,
+        externalMessageId: idTrimmed,
+      };
+      const ch = channel.trim();
+      const un = userDisplayName.trim();
+      if (ch) body.channel = ch;
+      if (un) body.userDisplayName = un;
+
+      ingestSlack.mutate(
+        { body, secret: secretTrimmed },
+        {
+          onSuccess: (data) => {
+            toaster.create({
+              type: 'success',
+              title: 'Feedback submitted',
+              description: `Saved with id ${data._id}.`,
+            });
+            setRawText('');
+            clearSlackFields({
+              setExternalMessageId,
+              setChannel,
+              setUserDisplayName,
+              setIngestSecret,
+            });
+          },
+          onError: (error) => {
+            toaster.create({
+              type: 'error',
+              title: 'Submission failed',
+              description: errorMessage(error),
+            });
+          },
+        },
+      );
+      return;
+    }
+
+    ingestFeedback.mutate(
       { rawText: trimmed, source },
       {
         onSuccess: (data) => {
@@ -99,7 +190,7 @@ export function IngestPage() {
               <NativeSelect.Root>
                 <NativeSelect.Field
                   value={source}
-                  onChange={(ev) => setSource(ev.target.value as FeedbackSource)}
+                  onChange={(ev) => handleSourceChange(ev.target.value as FeedbackSource)}
                 >
                   {SOURCE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -111,7 +202,52 @@ export function IngestPage() {
               </NativeSelect.Root>
             </Field.Root>
 
-            <Button type="submit" loading={mutation.isPending} alignSelf="flex-start">
+            {source === 'slack_like' && (
+              <>
+                <Field.Root required>
+                  <Field.Label>External message ID</Field.Label>
+                  <Input
+                    value={externalMessageId}
+                    onChange={(ev) => setExternalMessageId(ev.target.value)}
+                    placeholder="e.g. slack message ts or unique id"
+                    autoComplete="off"
+                  />
+                </Field.Root>
+
+                <Field.Root>
+                  <Field.Label>Channel</Field.Label>
+                  <Input
+                    value={channel}
+                    onChange={(ev) => setChannel(ev.target.value)}
+                    placeholder="Optional — e.g. #feedback"
+                    autoComplete="off"
+                  />
+                </Field.Root>
+
+                <Field.Root>
+                  <Field.Label>User display name</Field.Label>
+                  <Input
+                    value={userDisplayName}
+                    onChange={(ev) => setUserDisplayName(ev.target.value)}
+                    placeholder="Optional"
+                    autoComplete="off"
+                  />
+                </Field.Root>
+
+                <Field.Root required>
+                  <Field.Label>Ingest secret</Field.Label>
+                  <Input
+                    type="password"
+                    value={ingestSecret}
+                    onChange={(ev) => setIngestSecret(ev.target.value)}
+                    placeholder="Matches SLACK_INGEST_SECRET on the API"
+                    autoComplete="off"
+                  />
+                </Field.Root>
+              </>
+            )}
+
+            <Button type="submit" loading={isPending} alignSelf="flex-start">
               Submit
             </Button>
           </VStack>

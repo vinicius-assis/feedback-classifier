@@ -98,7 +98,7 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 - [x] **G.11** Navbar/header global com links para `Dashboard`, `Ingest` e `Bulk Ingest` — sem navegação, as páginas são ilhas inacessíveis
 - [x] **G.12** Botões de ação no header do dashboard (`+ Add feedback`, `Bulk import`) para CTA visível sem sair da página
 - [x] **G.13** Customizar tema Chakra: fonte diferenciada, cor primária, tokens básicos de cor — `theme.ts` atual está vazio (`{}`)
-- [ ] **G.14** `IngestPage`: adaptar formulário quando `source = slack_like` para exibir campos `externalMessageId`, `channel`, `userDisplayName` e o header `X-Ingest-Secret` (os campos existem no schema mas a UI não os expõe)
+- [x] **G.14** `IngestPage`: adaptar formulário quando `source = slack_like` para exibir campos `externalMessageId`, `channel`, `userDisplayName` e o header `X-Ingest-Secret` (os campos existem no schema mas a UI não os expõe)
 - [ ] **G.15** Página `/integrations` com exemplo `curl` formatado para o endpoint Slack-like — diferenciador visual no Loom e cobre o fluxo CS/Sales do spec
 
 **Gate:** fluxo manual web sem erros de consola; API e web falam entre si.
