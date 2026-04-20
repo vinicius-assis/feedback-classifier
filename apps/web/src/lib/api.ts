@@ -81,7 +81,9 @@ async function requestCore<T>(
     headers.set('Accept', 'application/json');
   }
   if (init.body !== undefined && !headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json');
+    if (!(init.body instanceof FormData)) {
+      headers.set('Content-Type', 'application/json');
+    }
   }
 
   const res = await fetch(url, { ...init, headers });
@@ -109,6 +111,15 @@ export function post<T>(path: string, body?: unknown, init?: RequestInit): Promi
     ...init,
     method: 'POST',
     body: body === undefined ? undefined : JSON.stringify(body),
+  });
+}
+
+/** POST `multipart/form-data` (e.g. file upload). Do not set Content-Type manually. */
+export function postForm<T>(path: string, formData: FormData, init?: RequestInit): Promise<T> {
+  return request<T>(path, {
+    ...init,
+    method: 'POST',
+    body: formData,
   });
 }
 

@@ -52,7 +52,7 @@ const FEATURE_AREA_OPTIONS: FeatureArea[] = [
   'unknown',
 ];
 const URGENCY_OPTIONS: Urgency[] = ['low', 'medium', 'high', 'unknown'];
-const SOURCE_OPTIONS: FeedbackSource[] = ['web_form', 'web_bulk', 'slack_like'];
+const SOURCE_OPTIONS: FeedbackSource[] = ['web_form', 'web_bulk', 'web_file', 'slack_like'];
 const CLASSIFICATION_STATUS_OPTIONS: ClassificationStatus[] = ['success', 'failed'];
 
 function bucketCounts(buckets: { _id: string | null; count: number }[]) {

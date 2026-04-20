@@ -1,5 +1,6 @@
 import { Button, Container, Field, Heading, Stack, Text, Textarea, VStack } from '@chakra-ui/react';
 import { FormEvent, useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
 import { useIngestBulk } from '../hooks/useIngest';
 import { ApiError } from '../lib/api';
@@ -104,6 +105,14 @@ export function IngestBulkPage() {
               web_bulk
             </Text>
             .
+          </Text>
+          <Text color="fg.muted" fontSize="sm">
+            Have a spreadsheet?{' '}
+            <NavLink to="/ingest/file">
+              <Text as="span" color="fg" textDecoration="underline" _hover={{ opacity: 0.85 }}>
+                Import CSV or Excel
+              </Text>
+            </NavLink>
           </Text>
         </Stack>
 

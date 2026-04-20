@@ -3,16 +3,18 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { FeedbackSource } from '../../lib/types';
 
-const SOURCE_ORDER: FeedbackSource[] = ['web_form', 'web_bulk', 'slack_like'];
+const SOURCE_ORDER: FeedbackSource[] = ['web_form', 'web_bulk', 'web_file', 'slack_like'];
 const SOURCE_LABELS: Record<FeedbackSource, string> = {
   web_form: 'Web form',
   web_bulk: 'Bulk import',
+  web_file: 'File import',
   slack_like: 'Slack',
 };
 /** Chakra semantic tokens for segment + legend swatches */
 const SOURCE_COLOR_TOKENS: Record<FeedbackSource, string> = {
   web_form: 'brand.solid',
   web_bulk: 'teal.solid',
+  web_file: 'cyan.solid',
   slack_like: 'purple.solid',
 };
 

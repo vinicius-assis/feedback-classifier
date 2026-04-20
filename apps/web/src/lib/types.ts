@@ -1,6 +1,6 @@
 /** Client types aligned with `apps/api` feedback schema and DTOs. */
 
-export type FeedbackSource = 'web_form' | 'web_bulk' | 'slack_like';
+export type FeedbackSource = 'web_form' | 'web_bulk' | 'web_file' | 'slack_like';
 
 export type FeatureArea =
   | 'onboarding'
@@ -63,6 +63,14 @@ export type FeedbackStatsSummary = {
 export type BulkIngestResultItem =
   | { index: number; status: 'fulfilled'; data: FeedbackItem }
   | { index: number; status: 'rejected'; error: string };
+
+export type FeedbackImportResult = {
+  total: number;
+  fulfilled: number;
+  failed: number;
+  skipped: number;
+  errors: { row: number; message: string }[];
+};
 
 /** Query params for `GET /feedback`. */
 export type FeedbackFilters = {
