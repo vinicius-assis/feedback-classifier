@@ -4,6 +4,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
+import { ColorModeProvider } from './components/ui/color-mode';
 import { AppToaster } from './lib/AppToaster';
 import { system } from './theme';
 
@@ -18,10 +19,12 @@ createRoot(rootEl).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ChakraProvider value={system}>
-        <AppToaster />
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <ColorModeProvider defaultTheme="dark" storageKey="ledn-feedback-theme">
+          <AppToaster />
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </ColorModeProvider>
       </ChakraProvider>
     </QueryClientProvider>
   </StrictMode>,
