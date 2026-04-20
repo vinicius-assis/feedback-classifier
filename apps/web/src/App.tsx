@@ -4,6 +4,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { FeedbackDetailPage } from './pages/FeedbackDetailPage';
 import { IngestBulkPage } from './pages/IngestBulkPage';
 import { IngestPage } from './pages/IngestPage';
+import { IntegrationsPage } from './pages/IntegrationsPage';
 
 export function App() {
   return (
@@ -13,6 +14,7 @@ export function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/ingest" element={<IngestPage />} />
         <Route path="/ingest/bulk" element={<IngestBulkPage />} />
+        <Route path="/integrations" element={<IntegrationsPage />} />
         <Route path="/feedback/:id" element={<FeedbackDetailPage />} />
       </Route>
     </Routes>
