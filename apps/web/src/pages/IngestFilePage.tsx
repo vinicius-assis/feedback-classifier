@@ -151,9 +151,9 @@ export function IngestFilePage() {
             <Box
               role="button"
               tabIndex={0}
-              borderWidth="1px"
+              borderWidth="2px"
               borderStyle="dashed"
-              borderColor={isDragging ? 'blue.solid' : 'border.subtle'}
+              borderColor={isDragging ? 'blue.solid' : 'border'}
               borderRadius="md"
               px={6}
               py={10}
@@ -161,6 +161,7 @@ export function IngestFilePage() {
               bg={isDragging ? 'bg.muted' : 'bg.subtle'}
               cursor="pointer"
               transition="border-color 0.15s ease, background 0.15s ease"
+              _hover={{ borderColor: 'blue.solid' }}
               onClick={() => inputRef.current?.click()}
               onKeyDown={(ev) => {
                 if (ev.key === 'Enter' || ev.key === ' ') {

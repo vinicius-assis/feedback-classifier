@@ -1,4 +1,14 @@
-import { Button, Container, Field, Heading, Stack, Text, Textarea, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Container,
+  Field,
+  Heading,
+  Stack,
+  Text,
+  Textarea,
+  VStack,
+} from '@chakra-ui/react';
 import { FormEvent, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
@@ -116,26 +126,35 @@ export function IngestBulkPage() {
           </Text>
         </Stack>
 
-        <form onSubmit={handleSubmit}>
-          <VStack align="stretch" gap={4}>
-            <Field.Root required>
-              <Field.Label>Feedback lines</Field.Label>
-              <Textarea
-                value={bulkText}
-                onChange={(ev) => setBulkText(ev.target.value)}
-                placeholder={'Line 1…\nLine 2…'}
-                rows={14}
-                resize="vertical"
-                fontFamily="mono"
-                fontSize="sm"
-              />
-            </Field.Root>
+        <Box
+          maxW="2xl"
+          borderWidth="1px"
+          borderColor="border"
+          borderRadius="lg"
+          bg="bg.subtle"
+          p={6}
+        >
+          <form onSubmit={handleSubmit}>
+            <VStack align="stretch" gap={4}>
+              <Field.Root required>
+                <Field.Label>Feedback lines</Field.Label>
+                <Textarea
+                  value={bulkText}
+                  onChange={(ev) => setBulkText(ev.target.value)}
+                  placeholder={'Line 1…\nLine 2…'}
+                  rows={14}
+                  resize="vertical"
+                  fontFamily="mono"
+                  fontSize="sm"
+                />
+              </Field.Root>
 
-            <Button type="submit" loading={mutation.isPending} alignSelf="flex-start">
-              Submit bulk
-            </Button>
-          </VStack>
-        </form>
+              <Button type="submit" loading={mutation.isPending} alignSelf="flex-start">
+                Submit bulk
+              </Button>
+            </VStack>
+          </form>
+        </Box>
       </VStack>
     </Container>
   );

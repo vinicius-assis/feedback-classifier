@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Container,
   Field,
@@ -206,86 +207,95 @@ export function IngestPage() {
           <Text color="fg.muted">Submit a single feedback item for classification.</Text>
         </Stack>
 
-        <form onSubmit={handleSubmit}>
-          <VStack align="stretch" gap={4} maxW="2xl">
-            <Field.Root required>
-              <Field.Label>Feedback text</Field.Label>
-              <Textarea
-                value={rawText}
-                onChange={(ev) => setRawText(ev.target.value)}
-                placeholder="Describe the feedback…"
-                rows={8}
-                resize="vertical"
-              />
-            </Field.Root>
+        <Box
+          maxW="2xl"
+          borderWidth="1px"
+          borderColor="border"
+          borderRadius="lg"
+          bg="bg.subtle"
+          p={6}
+        >
+          <form onSubmit={handleSubmit}>
+            <VStack align="stretch" gap={4}>
+              <Field.Root required>
+                <Field.Label>Feedback text</Field.Label>
+                <Textarea
+                  value={rawText}
+                  onChange={(ev) => setRawText(ev.target.value)}
+                  placeholder="Describe the feedback…"
+                  rows={8}
+                  resize="vertical"
+                />
+              </Field.Root>
 
-            <Field.Root>
-              <Field.Label>Source</Field.Label>
-              <NativeSelect.Root>
-                <NativeSelect.Field
-                  value={source}
-                  onChange={(ev) => handleSourceChange(ev.target.value as FeedbackSource)}
-                >
-                  {SOURCE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-                <NativeSelect.Indicator />
-              </NativeSelect.Root>
-            </Field.Root>
+              <Field.Root>
+                <Field.Label>Source</Field.Label>
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    value={source}
+                    onChange={(ev) => handleSourceChange(ev.target.value as FeedbackSource)}
+                  >
+                    {SOURCE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </NativeSelect.Field>
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Field.Root>
 
-            {source === 'slack_like' && (
-              <>
-                <Field.Root required>
-                  <Field.Label>External message ID</Field.Label>
-                  <Input
-                    value={externalMessageId}
-                    onChange={(ev) => setExternalMessageId(ev.target.value)}
-                    placeholder="e.g. slack message ts or unique id"
-                    autoComplete="off"
-                  />
-                </Field.Root>
+              {source === 'slack_like' && (
+                <>
+                  <Field.Root required>
+                    <Field.Label>External message ID</Field.Label>
+                    <Input
+                      value={externalMessageId}
+                      onChange={(ev) => setExternalMessageId(ev.target.value)}
+                      placeholder="e.g. slack message ts or unique id"
+                      autoComplete="off"
+                    />
+                  </Field.Root>
 
-                <Field.Root>
-                  <Field.Label>Channel</Field.Label>
-                  <Input
-                    value={channel}
-                    onChange={(ev) => setChannel(ev.target.value)}
-                    placeholder="Optional — e.g. #feedback"
-                    autoComplete="off"
-                  />
-                </Field.Root>
+                  <Field.Root>
+                    <Field.Label>Channel</Field.Label>
+                    <Input
+                      value={channel}
+                      onChange={(ev) => setChannel(ev.target.value)}
+                      placeholder="Optional — e.g. #feedback"
+                      autoComplete="off"
+                    />
+                  </Field.Root>
 
-                <Field.Root>
-                  <Field.Label>User display name</Field.Label>
-                  <Input
-                    value={userDisplayName}
-                    onChange={(ev) => setUserDisplayName(ev.target.value)}
-                    placeholder="Optional"
-                    autoComplete="off"
-                  />
-                </Field.Root>
+                  <Field.Root>
+                    <Field.Label>User display name</Field.Label>
+                    <Input
+                      value={userDisplayName}
+                      onChange={(ev) => setUserDisplayName(ev.target.value)}
+                      placeholder="Optional"
+                      autoComplete="off"
+                    />
+                  </Field.Root>
 
-                <Field.Root required>
-                  <Field.Label>Ingest secret</Field.Label>
-                  <Input
-                    type="password"
-                    value={ingestSecret}
-                    onChange={(ev) => setIngestSecret(ev.target.value)}
-                    placeholder="Matches SLACK_INGEST_SECRET on the API"
-                    autoComplete="off"
-                  />
-                </Field.Root>
-              </>
-            )}
+                  <Field.Root required>
+                    <Field.Label>Ingest secret</Field.Label>
+                    <Input
+                      type="password"
+                      value={ingestSecret}
+                      onChange={(ev) => setIngestSecret(ev.target.value)}
+                      placeholder="Matches SLACK_INGEST_SECRET on the API"
+                      autoComplete="off"
+                    />
+                  </Field.Root>
+                </>
+              )}
 
-            <Button type="submit" loading={isPending} alignSelf="flex-start">
-              Submit
-            </Button>
-          </VStack>
-        </form>
+              <Button type="submit" loading={isPending} alignSelf="flex-start">
+                Submit
+              </Button>
+            </VStack>
+          </form>
+        </Box>
       </VStack>
     </Container>
   );

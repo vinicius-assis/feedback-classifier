@@ -27,6 +27,12 @@ const config = defineConfig({
       colors: {
         'brand.solid': { value: '{colors.brand.500}' },
         'brand.fg': { value: 'white' },
+        'border.subtle': {
+          value: { base: '{colors.gray.200}', _dark: 'rgba(255,255,255,0.16)' },
+        },
+        border: {
+          value: { base: '{colors.gray.300}', _dark: 'rgba(255,255,255,0.22)' },
+        },
       },
     },
   },
