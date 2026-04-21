@@ -52,7 +52,12 @@ const FEATURE_AREA_OPTIONS: FeatureArea[] = [
   'unknown',
 ];
 const URGENCY_OPTIONS: Urgency[] = ['low', 'medium', 'high', 'unknown'];
-const SOURCE_OPTIONS: FeedbackSource[] = ['web_form', 'web_bulk', 'web_file', 'slack_like'];
+const SOURCE_OPTIONS: FeedbackSource[] = [
+  'web_form',
+  'web_bulk',
+  'web_file',
+  // 'slack_like', // Slack — hidden in web app; API may still return for existing rows
+];
 const CLASSIFICATION_STATUS_OPTIONS: ClassificationStatus[] = ['success', 'failed'];
 
 function bucketCounts(buckets: { _id: string | null; count: number }[]) {

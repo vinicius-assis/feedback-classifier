@@ -1,5 +1,6 @@
 /** Client types aligned with `apps/api` feedback schema and DTOs. */
 
+/** Ingest source. `slack_like` is only returned by the API for legacy rows; Slack UI is disabled in the web app. */
 export type FeedbackSource = 'web_form' | 'web_bulk' | 'web_file' | 'slack_like';
 
 export type FeatureArea =
@@ -92,9 +93,10 @@ export type BulkFeedbackBody = {
   items: { rawText: string }[];
 };
 
-export type SlackFeedbackBody = {
-  text: string;
-  externalMessageId: string;
-  channel?: string;
-  userDisplayName?: string;
-};
+// Slack — web ingest disabled (kept for reference / API shape)
+// export type SlackFeedbackBody = {
+//   text: string;
+//   externalMessageId: string;
+//   channel?: string;
+//   userDisplayName?: string;
+// };

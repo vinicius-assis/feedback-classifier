@@ -1,21 +1,29 @@
 import { Box, Card, HStack, Skeleton, Text, VStack } from '@chakra-ui/react';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { FeedbackSource } from '../../lib/types';
+/** Core sources shown in the chart; `slack_like` and any other API values roll into "Other". */
+type ChartSourceKey = 'web_form' | 'web_bulk' | 'web_file';
 
-const SOURCE_ORDER: FeedbackSource[] = ['web_form', 'web_bulk', 'web_file', 'slack_like'];
-const SOURCE_LABELS: Record<FeedbackSource, string> = {
+const SOURCE_ORDER: ChartSourceKey[] = ['web_form', 'web_bulk', 'web_file'];
+const SOURCE_LABELS: Record<ChartSourceKey, string> = {
   web_form: 'Web form',
   web_bulk: 'Bulk import',
   web_file: 'File import',
-  slack_like: 'Slack',
+  // slack_like: 'Slack', // Slack — hidden in web app
 };
 /** Chakra semantic tokens for segment + legend swatches */
-const SOURCE_COLOR_TOKENS: Record<FeedbackSource, string> = {
+const SOURCE_COLOR_TOKENS: Record<ChartSourceKey, string> = {
   web_form: 'brand.solid',
   web_bulk: 'teal.solid',
   web_file: 'cyan.solid',
-  slack_like: 'purple.solid',
+  // slack_like: 'purple.solid',
+};
+
+type ChartRow = {
+  key: ChartSourceKey | 'other';
+  label: string;
+  value: number;
+  colorToken: string;
 };
 
 type Props = {
@@ -24,21 +32,34 @@ type Props = {
 };
 
 export function SourceMixChart({ buckets, isLoading }: Props) {
-  const rows = useMemo(() => {
+  const { rows, total } = useMemo(() => {
     const m = new Map<string, number>();
-    if (!buckets) return [];
+    if (!buckets) return { rows: [] as ChartRow[], total: 0 };
     for (const b of buckets) {
       m.set(String(b._id ?? 'unknown'), b.count);
     }
-    return SOURCE_ORDER.map((key) => ({
+    const fullTotal = [...m.values()].reduce((acc, v) => acc + v, 0);
+
+    const coreRows: ChartRow[] = SOURCE_ORDER.map((key) => ({
       key,
       label: SOURCE_LABELS[key],
       value: m.get(key) ?? 0,
       colorToken: SOURCE_COLOR_TOKENS[key],
     }));
-  }, [buckets]);
+    const coreSum = coreRows.reduce((acc, r) => acc + r.value, 0);
+    const other = Math.max(0, fullTotal - coreSum);
 
-  const total = useMemo(() => rows.reduce((acc, r) => acc + r.value, 0), [rows]);
+    const out: ChartRow[] = [...coreRows];
+    if (other > 0) {
+      out.push({
+        key: 'other',
+        label: 'Other',
+        value: other,
+        colorToken: 'gray.solid',
+      });
+    }
+    return { rows: out, total: fullTotal };
+  }, [buckets]);
 
   const [animated, setAnimated] = useState(false);
   useEffect(() => {

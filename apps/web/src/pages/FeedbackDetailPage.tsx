@@ -10,6 +10,7 @@ import {
   Skeleton,
   Stack,
   Text,
+  Tooltip,
   VStack,
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -17,7 +18,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useFeedbackItem, useReclassifyFeedback } from '../hooks/useFeedback';
 import { ApiError } from '../lib/api';
 import { toaster } from '../lib/toaster';
-import type { Sentiment } from '../lib/types';
+import type { Sentiment, Urgency } from '../lib/types';
 
 function sentimentPalette(sentiment: Sentiment): string {
   switch (sentiment) {
@@ -30,6 +31,22 @@ function sentimentPalette(sentiment: Sentiment): string {
     case 'unknown':
     default:
       return 'orange';
+  }
+}
+
+function urgencyPalette(urgency: Urgency | string): string {
+  switch (urgency) {
+    case 'critical':
+      return 'red';
+    case 'high':
+      return 'orange';
+    case 'medium':
+      return 'yellow';
+    case 'low':
+      return 'green';
+    case 'unknown':
+    default:
+      return 'gray';
   }
 }
 
@@ -49,6 +66,28 @@ function formatClassificationRaw(raw: unknown): string {
   } catch {
     return String(raw);
   }
+}
+
+function IconReclassify() {
+  return (
+    <Box as="span" display="inline-flex" flexShrink={0} lineHeight="0" aria-hidden>
+      <svg
+        width="1em"
+        height="1em"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 3" />
+        <path d="M21 3v5h-5" />
+        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 21" />
+        <path d="M3 21v-5h5" />
+      </svg>
+    </Box>
+  );
 }
 
 export function FeedbackDetailPage() {
@@ -116,13 +155,39 @@ export function FeedbackDetailPage() {
   return (
     <Container maxW="7xl" py={8}>
       <VStack align="stretch" gap={8}>
-        <HStack justify="space-between" flexWrap="wrap" gap={4}>
-          <Button variant="ghost" onClick={() => navigate(-1)}>
+        <HStack justify="space-between" flexWrap="wrap" gap={4} align="flex-start" w="100%">
+          <Button variant="ghost" onClick={() => navigate(-1)} flexShrink={0}>
             ← Back
           </Button>
-          <HStack gap={2} flexWrap="wrap" align="center">
+          <HStack
+            role="group"
+            align="stretch"
+            w="max-content"
+            maxW="100%"
+            gap={0}
+            borderRadius="l2"
+            borderWidth="1px"
+            borderColor="border.subtle"
+            boxShadow="xs"
+            bg="bg.subtle"
+            overflow="visible"
+            isolation="isolate"
+          >
             <Button
-              variant="outline"
+              type="button"
+              size="sm"
+              colorPalette="brand"
+              variant="surface"
+              borderRadius="0"
+              borderLeftRadius="l2"
+              borderRightRadius="0"
+              px={3}
+              h="auto"
+              minH="9"
+              minW="0"
+              flexShrink={0}
+              alignSelf="stretch"
+              gap={2}
               loading={reclassifyMutation.isPending}
               onClick={() =>
                 reclassifyMutation.mutate(undefined, {
@@ -142,11 +207,63 @@ export function FeedbackDetailPage() {
                 })
               }
             >
+              <IconReclassify />
               Reclassify
             </Button>
-            <Badge colorPalette="gray" variant="subtle" fontFamily="mono" fontSize="xs">
-              {item._id}
-            </Badge>
+            <Box alignSelf="stretch" w="1px" flexShrink={0} bg="border.subtle" my={0} />
+            <Tooltip.Root openDelay={200} closeDelay={100}>
+              <Tooltip.Trigger asChild>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  alignSelf="stretch"
+                  minH="9"
+                  minW={0}
+                  w="max-content"
+                  maxW="100%"
+                  flexShrink={1}
+                  px={3.5}
+                  py={1.5}
+                  cursor="default"
+                  bg="bg.muted"
+                  borderRightRadius="l2"
+                  _hover={{ bg: 'bg.emphasized' }}
+                  transition="background 0.15s ease"
+                >
+                  <Text
+                    as="span"
+                    fontFamily="mono"
+                    fontSize="xs"
+                    fontWeight="medium"
+                    letterSpacing="0.04em"
+                    lineHeight="tall"
+                    textTransform="uppercase"
+                    color="fg"
+                    userSelect="all"
+                    whiteSpace="normal"
+                    wordBreak="break-all"
+                  >
+                    {item._id}
+                  </Text>
+                </Box>
+              </Tooltip.Trigger>
+              <Tooltip.Positioner>
+                <Tooltip.Content maxW="min(100vw, 32rem)" px={3} py={2.5} borderRadius="md">
+                  <Text
+                    as="code"
+                    display="block"
+                    fontFamily="mono"
+                    fontSize="xs"
+                    lineHeight="tall"
+                    wordBreak="break-all"
+                    textTransform="uppercase"
+                    color="fg"
+                  >
+                    {item._id}
+                  </Text>
+                </Tooltip.Content>
+              </Tooltip.Positioner>
+            </Tooltip.Root>
           </HStack>
         </HStack>
 
@@ -172,7 +289,7 @@ export function FeedbackDetailPage() {
           </Card.Header>
           <Card.Body>
             <Stack gap={4}>
-              <HStack flexWrap="wrap" gap={2}>
+              <HStack flexWrap="wrap" gap={2} align="center" rowGap={2}>
                 {item.classificationStatus ? (
                   <Badge colorPalette={failed ? 'red' : 'green'} variant="subtle">
                     {item.classificationStatus}
@@ -184,12 +301,20 @@ export function FeedbackDetailPage() {
                   </Badge>
                 ) : null}
                 {item.featureArea ? (
-                  <Badge variant="subtle" textTransform="capitalize">
+                  <Badge
+                    colorPalette="purple"
+                    variant="subtle"
+                    textTransform="capitalize"
+                  >
                     {item.featureArea}
                   </Badge>
                 ) : null}
                 {item.urgency ? (
-                  <Badge variant="subtle" textTransform="capitalize">
+                  <Badge
+                    colorPalette={urgencyPalette(item.urgency)}
+                    variant="subtle"
+                    textTransform="capitalize"
+                  >
                     {item.urgency}
                   </Badge>
                 ) : null}

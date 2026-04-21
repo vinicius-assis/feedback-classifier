@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { post, postForm, postWithStatus } from '../lib/api';
+import { post, postForm } from '../lib/api';
 import type {
   BulkFeedbackBody,
   BulkIngestResultItem,
   CreateFeedbackBody,
   FeedbackImportResult,
   FeedbackItem,
-  SlackFeedbackBody,
+  // SlackFeedbackBody,
 } from '../lib/types';
 
 function useInvalidateFeedback() {
@@ -33,16 +33,17 @@ export function useIngestBulk() {
   });
 }
 
-export function useIngestSlack() {
-  const invalidate = useInvalidateFeedback();
-  return useMutation({
-    mutationFn: ({ body, secret }: { body: SlackFeedbackBody; secret: string }) =>
-      postWithStatus<FeedbackItem>('/integrations/slack/feedback', body, {
-        headers: { 'X-Ingest-Secret': secret },
-      }),
-    onSuccess: invalidate,
-  });
-}
+// Slack — web ingest disabled
+// export function useIngestSlack() {
+//   const invalidate = useInvalidateFeedback();
+//   return useMutation({
+//     mutationFn: ({ body, secret }: { body: SlackFeedbackBody; secret: string }) =>
+//       postWithStatus<FeedbackItem>('/integrations/slack/feedback', body, {
+//         headers: { 'X-Ingest-Secret': secret },
+//       }),
+//     onSuccess: invalidate,
+//   });
+// }
 
 export function useIngestFile() {
   const invalidate = useInvalidateFeedback();
