@@ -152,7 +152,13 @@ function FeedbackTableRow({
       <Table.Cell textTransform="capitalize">{item.urgency ?? '—'}</Table.Cell>
       <Table.Cell>
         {item.classificationStatus ? (
-          <Badge colorPalette={failed ? 'red' : 'green'} variant="subtle">
+          <Badge
+            colorPalette={failed ? 'red' : 'green'}
+            variant="subtle"
+            textTransform="uppercase"
+            fontSize="xs"
+            letterSpacing="wide"
+          >
             {item.classificationStatus}
           </Badge>
         ) : (

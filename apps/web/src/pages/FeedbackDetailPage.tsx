@@ -333,12 +333,24 @@ export function FeedbackDetailPage() {
             <Stack gap={4}>
               <HStack flexWrap="wrap" gap={2} align="center" rowGap={2}>
                 {item.classificationStatus ? (
-                  <Badge colorPalette={failed ? 'red' : 'green'} variant="subtle">
+                  <Badge
+                    colorPalette={failed ? 'red' : 'green'}
+                    variant="subtle"
+                    textTransform="uppercase"
+                    fontSize="xs"
+                    letterSpacing="wide"
+                  >
                     {item.classificationStatus}
                   </Badge>
                 ) : null}
                 {item.sentiment ? (
-                  <Badge colorPalette={sentimentPalette(item.sentiment)} variant="subtle">
+                  <Badge
+                    colorPalette={sentimentPalette(item.sentiment)}
+                    variant="subtle"
+                    textTransform="uppercase"
+                    fontSize="xs"
+                    letterSpacing="wide"
+                  >
                     {item.sentiment}
                   </Badge>
                 ) : null}
@@ -346,7 +358,9 @@ export function FeedbackDetailPage() {
                   <Badge
                     colorPalette="purple"
                     variant="subtle"
-                    textTransform="capitalize"
+                    textTransform="uppercase"
+                    fontSize="xs"
+                    letterSpacing="wide"
                   >
                     {item.featureArea}
                   </Badge>
@@ -355,7 +369,9 @@ export function FeedbackDetailPage() {
                   <Badge
                     colorPalette={urgencyPalette(item.urgency)}
                     variant="subtle"
-                    textTransform="capitalize"
+                    textTransform="uppercase"
+                    fontSize="xs"
+                    letterSpacing="wide"
                   >
                     {item.urgency}
                   </Badge>
