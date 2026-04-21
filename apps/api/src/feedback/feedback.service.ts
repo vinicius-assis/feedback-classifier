@@ -138,6 +138,34 @@ export class FeedbackService {
     }
   }
 
+  /**
+   * Re-runs classification on stored `rawText` and updates the document (success or failed).
+   */
+  async reclassify(id: string): Promise<FeedbackItemDocument> {
+    const doc = await this.findById(id);
+    try {
+      const result = await this.classificationService.classify(doc.rawText);
+      doc.sentiment = result.output.sentiment;
+      doc.featureArea = result.output.featureArea;
+      doc.urgency = result.output.urgency;
+      doc.summary = result.output.summary;
+      doc.set('model', result.model);
+      doc.promptVersion = result.promptVersion;
+      doc.classificationRaw = result.classificationRaw;
+      doc.classificationStatus = 'success';
+      doc.classificationError = undefined;
+    } catch (err) {
+      if (err instanceof ClassificationError) {
+        doc.classificationStatus = 'failed';
+        doc.classificationError = err.message;
+      } else {
+        throw err;
+      }
+    }
+    await doc.save();
+    return doc;
+  }
+
   async deleteById(id: string): Promise<void> {
     try {
       const result = await this.feedbackModel.findByIdAndDelete(id).exec();
@@ -244,7 +272,11 @@ export class FeedbackService {
    * Parses a CSV or XLSX buffer: one feedback per row, first column only.
    * Batches rows into chunks of {@link BULK_BATCH_SIZE} and ingests with source `web_file`.
    */
-  async importFile(buffer: Buffer, mimetype: string, originalname?: string): Promise<FeedbackImportResult> {
+  async importFile(
+    buffer: Buffer,
+    mimetype: string,
+    originalname?: string,
+  ): Promise<FeedbackImportResult> {
     const allowed = new Set([
       'text/csv',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -314,10 +346,9 @@ export class FeedbackService {
     }
 
     const sheet = workbook.Sheets[sheetName];
-    const matrix = XLSX.utils.sheet_to_json<(string | number | boolean | Date | null | undefined)[]>(
-      sheet,
-      { header: 1, defval: '', raw: false },
-    );
+    const matrix = XLSX.utils.sheet_to_json<
+      (string | number | boolean | Date | null | undefined)[]
+    >(sheet, { header: 1, defval: '', raw: false });
 
     let skippedBlanks = 0;
     const nonEmpty: { sheetRow: number; text: string }[] = [];
@@ -344,8 +375,7 @@ export class FeedbackService {
     const rows: { sheetRow: number; rawText: string }[] = [];
     for (let j = start; j < nonEmpty.length; j++) {
       const { sheetRow, text } = nonEmpty[j]!;
-      const rawText =
-        text.length > RAW_TEXT_MAX_LENGTH ? text.slice(0, RAW_TEXT_MAX_LENGTH) : text;
+      const rawText = text.length > RAW_TEXT_MAX_LENGTH ? text.slice(0, RAW_TEXT_MAX_LENGTH) : text;
       rows.push({ sheetRow, rawText });
     }
 
@@ -369,7 +399,10 @@ export class FeedbackService {
   }
 
   private static isLikelyImportHeader(value: string): boolean {
-    const key = value.trim().toLowerCase().replace(/[\s_-]+/g, '');
+    const key = value
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, '');
     return IMPORT_HEADER_LABELS.has(key);
   }
 

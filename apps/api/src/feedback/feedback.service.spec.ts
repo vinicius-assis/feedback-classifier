@@ -3,7 +3,10 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 
 import { PROMPT_VERSION } from '../classification/classification.constants';
-import { ClassificationError, ClassificationService } from '../classification/classification.service';
+import {
+  ClassificationError,
+  ClassificationService,
+} from '../classification/classification.service';
 import { FeedbackService } from './feedback.service';
 import { FeedbackItem } from './schemas/feedback-item.schema';
 
@@ -142,7 +145,10 @@ describe('FeedbackService', () => {
       /** Non-ClassificationError is rethrown by persistFeedback → bulk row is rejected. */
       .mockRejectedValueOnce(new Error('unexpected failure'));
 
-    const results = await service.ingestBulk([{ rawText: 'first' }, { rawText: 'second' }], 'web_bulk');
+    const results = await service.ingestBulk(
+      [{ rawText: 'first' }, { rawText: 'second' }],
+      'web_bulk',
+    );
 
     expect(results).toHaveLength(2);
     expect(results[0]).toMatchObject({ index: 0, status: 'fulfilled' });
@@ -151,6 +157,8 @@ describe('FeedbackService', () => {
       status: 'rejected',
       error: 'unexpected failure',
     });
-    expect((results[0] as { status: string }).status === 'fulfilled' && 'data' in results[0]).toBe(true);
+    expect((results[0] as { status: string }).status === 'fulfilled' && 'data' in results[0]).toBe(
+      true,
+    );
   });
 });

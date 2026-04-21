@@ -14,8 +14,9 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { useFeedbackItem } from '../hooks/useFeedback';
+import { useFeedbackItem, useReclassifyFeedback } from '../hooks/useFeedback';
 import { ApiError } from '../lib/api';
+import { toaster } from '../lib/toaster';
 import type { Sentiment } from '../lib/types';
 
 function sentimentPalette(sentiment: Sentiment): string {
@@ -55,6 +56,7 @@ export function FeedbackDetailPage() {
   const id = idParam?.trim() ?? '';
   const navigate = useNavigate();
   const query = useFeedbackItem(id);
+  const reclassifyMutation = useReclassifyFeedback(id);
 
   if (!id) {
     return (
@@ -118,9 +120,34 @@ export function FeedbackDetailPage() {
           <Button variant="ghost" onClick={() => navigate(-1)}>
             ← Back
           </Button>
-          <Badge colorPalette="gray" variant="subtle" fontFamily="mono" fontSize="xs">
-            {item._id}
-          </Badge>
+          <HStack gap={2} flexWrap="wrap" align="center">
+            <Button
+              variant="outline"
+              loading={reclassifyMutation.isPending}
+              onClick={() =>
+                reclassifyMutation.mutate(undefined, {
+                  onSuccess: () => {
+                    toaster.create({
+                      type: 'success',
+                      title: 'Reclassified successfully',
+                    });
+                  },
+                  onError: (err) => {
+                    toaster.create({
+                      type: 'error',
+                      title: 'Reclassification failed',
+                      description: err instanceof Error ? err.message : 'Unknown error',
+                    });
+                  },
+                })
+              }
+            >
+              Reclassify
+            </Button>
+            <Badge colorPalette="gray" variant="subtle" fontFamily="mono" fontSize="xs">
+              {item._id}
+            </Badge>
+          </HStack>
         </HStack>
 
         <VStack align="stretch" gap={1}>

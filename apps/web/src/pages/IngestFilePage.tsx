@@ -84,8 +84,7 @@ export function IngestFilePage() {
             .slice(0, 5)
             .map((err) => `Row ${err.row}: ${err.message}`)
             .join('\n');
-          const more =
-            res.errors.length > 5 ? `\n… and ${res.errors.length - 5} more` : '';
+          const more = res.errors.length > 5 ? `\n… and ${res.errors.length - 5} more` : '';
           toaster.create({
             type: 'error',
             title: 'Row errors',
@@ -116,10 +115,23 @@ export function IngestFilePage() {
             Import from file
           </Heading>
           <Text color="fg.muted">
-            Upload a <Text as="span" fontWeight="medium">.csv</Text> or{' '}
-            <Text as="span" fontWeight="medium">.xlsx</Text> with one feedback per row (first column
-            only). Optional header row: <Text as="span" fontFamily="mono">feedback</Text>,{' '}
-            <Text as="span" fontFamily="mono">comments</Text>, etc. Items are stored with source{' '}
+            Upload a{' '}
+            <Text as="span" fontWeight="medium">
+              .csv
+            </Text>{' '}
+            or{' '}
+            <Text as="span" fontWeight="medium">
+              .xlsx
+            </Text>{' '}
+            with one feedback per row (first column only). Optional header row:{' '}
+            <Text as="span" fontFamily="mono">
+              feedback
+            </Text>
+            ,{' '}
+            <Text as="span" fontFamily="mono">
+              comments
+            </Text>
+            , etc. Items are stored with source{' '}
             <Text as="span" fontWeight="medium">
               web_file
             </Text>{' '}
@@ -198,7 +210,12 @@ export function IngestFilePage() {
               ) : null}
             </Box>
 
-            <Button type="submit" loading={mutation.isPending} alignSelf="flex-start" disabled={!file}>
+            <Button
+              type="submit"
+              loading={mutation.isPending}
+              alignSelf="flex-start"
+              disabled={!file}
+            >
               Import and classify
             </Button>
           </VStack>

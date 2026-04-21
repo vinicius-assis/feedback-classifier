@@ -35,6 +35,12 @@ export class FeedbackController {
     return this.feedbackService.findAll(query);
   }
 
+  @Post(':id/reclassify')
+  @HttpCode(HttpStatus.OK)
+  reclassify(@Param('id') id: string) {
+    return this.feedbackService.reclassify(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.feedbackService.findById(id);

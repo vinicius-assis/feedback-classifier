@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { get, remove, withQuery } from '../lib/api';
+import { get, post, remove, withQuery } from '../lib/api';
 import type { FeedbackFilters, FeedbackItem, FeedbackListResult } from '../lib/types';
 
 function listPath(filters: FeedbackFilters): string {
@@ -36,6 +36,17 @@ export function useDeleteFeedback() {
     mutationFn: (id: string) => remove(`/feedback/${encodeURIComponent(id)}`),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['feedback'] });
+    },
+  });
+}
+
+export function useReclassifyFeedback(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => post<FeedbackItem>(`/feedback/${encodeURIComponent(id)}/reclassify`),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(['feedback', 'detail', id], updated);
+      void queryClient.invalidateQueries({ queryKey: ['feedback', 'list'] });
     },
   });
 }
