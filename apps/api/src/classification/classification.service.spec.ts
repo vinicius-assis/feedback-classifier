@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 
-import { OPENAI_CLIENT } from './classification.constants';
+import { OPENAI_CLIENT, PROMPT_VERSION } from './classification.constants';
 import { ClassificationError, ClassificationService } from './classification.service';
 
 const makeCompletion = (content: string) => ({
@@ -40,7 +40,7 @@ describe('ClassificationService', () => {
     const result = await service.classify('great payments feature');
     expect(result.output.sentiment).toBe('positive');
     expect(result.output.featureArea).toBe('payments');
-    expect(result.promptVersion).toBe('v1');
+    expect(result.promptVersion).toBe(PROMPT_VERSION);
   });
 
   it('coerces invalid enum value to unknown', async () => {
