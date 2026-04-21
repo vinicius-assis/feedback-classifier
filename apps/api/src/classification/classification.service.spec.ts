@@ -58,6 +58,22 @@ describe('ClassificationService', () => {
     expect(result.output.sentiment).toBe('unknown');
   });
 
+  it('strips control characters and trims the summary', async () => {
+    const rawSummary = 'Hello\x00 \x1F\x7F  world  ';
+    create.mockResolvedValueOnce(
+      makeCompletion(
+        JSON.stringify({
+          sentiment: 'neutral',
+          featureArea: 'other',
+          urgency: 'low',
+          summary: rawSummary,
+        }),
+      ),
+    );
+    const result = await service.classify('x');
+    expect(result.output.summary).toBe('Hello   world');
+  });
+
   it('retries once on transient APIError then throws ClassificationError', async () => {
     const serverErr = new OpenAI.APIError(503, undefined, 'unavailable', undefined);
     create.mockRejectedValue(serverErr);

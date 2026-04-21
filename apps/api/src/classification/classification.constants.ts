@@ -22,11 +22,17 @@ const urgencyZodEnum = z.enum(URGENCIES as unknown as [Urgency, ...Urgency[]]);
  * Expected JSON shape from the model (post-parse validation in Phase D — Grupo 2).
  * Invalid enum values coerce to `unknown` per spec.
  */
+const CONTROL_CHAR_REGEX = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g;
+
 export const classificationOutputSchema = z.object({
   sentiment: sentimentZodEnum.catch('unknown'),
   featureArea: featureAreaZodEnum.catch('unknown'),
   urgency: urgencyZodEnum.catch('unknown'),
-  summary: z.string().max(1024).catch(''),
+  summary: z
+    .string()
+    .max(1024)
+    .transform((s) => s.replace(CONTROL_CHAR_REGEX, '').trim())
+    .catch(''),
 });
 
 export type ClassificationOutput = z.infer<typeof classificationOutputSchema>;
@@ -75,9 +81,13 @@ function formatEnumWithDescriptions(descriptions: Record<string, string>): strin
 
 /**
  * System + user instructions for v4. Uses taxonomy from feedback schema so enums stay aligned.
+ * `systemContent` and `userContent` are sent as separate message roles to reduce prompt-injection risk.
  */
-export function buildClassificationPrompt(rawText: string): string {
-  const systemPart = [
+export function buildClassificationPrompt(rawText: string): {
+  systemContent: string;
+  userContent: string;
+} {
+  const systemContent = [
     `You are a product feedback classifier. Respond with JSON only.`,
     `Prompt version: ${PROMPT_VERSION}.`,
     `Pick exactly one value for each enum field using the taxonomy below; if none fit, use "unknown".`,
@@ -145,7 +155,11 @@ export function buildClassificationPrompt(rawText: string): string {
     `→ urgency=low  (workaround in place, no deadline)`,
   ].join('\n');
 
-  const userPart = `Classify the following user feedback:\n\n---\n${rawText}\n---`;
+  const userContent = `Classify the following user feedback:
 
-  return `${systemPart}\n\n${userPart}`;
+<feedback>
+${rawText}
+</feedback>`;
+
+  return { systemContent, userContent };
 }

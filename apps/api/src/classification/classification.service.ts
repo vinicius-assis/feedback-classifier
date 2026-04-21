@@ -45,10 +45,14 @@ export class ClassificationService {
     const model = this.config.get<string>('OPENAI_MODEL') ?? 'gpt-4o-mini';
 
     try {
+      const { systemContent, userContent } = buildClassificationPrompt(rawText);
       const completion = await this.openai.chat.completions.create({
         model,
         response_format: { type: 'json_object' },
-        messages: [{ role: 'user', content: buildClassificationPrompt(rawText) }],
+        messages: [
+          { role: 'system', content: systemContent },
+          { role: 'user', content: userContent },
+        ],
       });
 
       const content = completion.choices[0]?.message?.content ?? '';
