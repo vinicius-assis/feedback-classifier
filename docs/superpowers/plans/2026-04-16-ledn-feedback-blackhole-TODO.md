@@ -107,8 +107,8 @@ Marca `[x]` conforme concluíes. Ordem recomendada: **A → B → C → D → E 
 
 ## Fase H — Qualidade e entrega
 
-- [ ] **H.1** README: fricção, arquitetura ASCII, pré-requisitos, `docker compose`, envs, comandos dev/build, limite de texto, exemplo `curl` Slack-like, política de status HTTP idempotente
-- [ ] **H.2** `pnpm lint` / `npm run lint` limpo nas duas apps
+- [x] **H.1** README: fricção, arquitetura ASCII, pré-requisitos, `docker compose`, envs, comandos dev/build, limite de texto, exemplo `curl` Slack-like, política de status HTTP idempotente
+- [x] **H.2** `pnpm lint` / `npm run lint` limpo nas duas apps
 - [ ] **H.3** (Opcional) E2E Supertest ou mais testes de serviço com Mongo em memória / mock repo
 - [ ] **H.4** (Stretch) `POST /api/feedback/:id/reclassify` + botão na UI
 
