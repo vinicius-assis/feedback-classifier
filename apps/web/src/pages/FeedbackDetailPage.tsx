@@ -10,9 +10,9 @@ import {
   Skeleton,
   Stack,
   Text,
-  Tooltip,
   VStack,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { useFeedbackItem, useReclassifyFeedback } from '../hooks/useFeedback';
@@ -68,6 +68,45 @@ function formatClassificationRaw(raw: unknown): string {
   }
 }
 
+function IconCopy() {
+  return (
+    <Box as="span" display="inline-flex" flexShrink={0} lineHeight="0" aria-hidden>
+      <svg
+        width="1em"
+        height="1em"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+      </svg>
+    </Box>
+  );
+}
+
+function IconCheck() {
+  return (
+    <Box as="span" display="inline-flex" flexShrink={0} lineHeight="0" aria-hidden>
+      <svg
+        width="1em"
+        height="1em"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    </Box>
+  );
+}
+
 function IconReclassify() {
   return (
     <Box as="span" display="inline-flex" flexShrink={0} lineHeight="0" aria-hidden>
@@ -96,6 +135,7 @@ export function FeedbackDetailPage() {
   const navigate = useNavigate();
   const query = useFeedbackItem(id);
   const reclassifyMutation = useReclassifyFeedback(id);
+  const [copied, setCopied] = useState(false);
 
   if (!id) {
     return (
@@ -151,6 +191,14 @@ export function FeedbackDetailPage() {
   }
 
   const failed = item.classificationStatus === 'failed';
+
+  const itemId = item._id;
+  function copyId() {
+    navigator.clipboard.writeText(itemId).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }
 
   return (
     <Container maxW="7xl" py={8}>
@@ -211,59 +259,53 @@ export function FeedbackDetailPage() {
               Reclassify
             </Button>
             <Box alignSelf="stretch" w="1px" flexShrink={0} bg="border.subtle" my={0} />
-            <Tooltip.Root openDelay={200} closeDelay={100}>
-              <Tooltip.Trigger asChild>
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  alignSelf="stretch"
-                  minH="9"
-                  minW={0}
-                  w="max-content"
-                  maxW="100%"
-                  flexShrink={1}
-                  px={3.5}
-                  py={1.5}
-                  cursor="default"
-                  bg="bg.muted"
-                  borderRightRadius="l2"
-                  _hover={{ bg: 'bg.emphasized' }}
-                  transition="background 0.15s ease"
-                >
-                  <Text
-                    as="span"
-                    fontFamily="mono"
-                    fontSize="xs"
-                    fontWeight="medium"
-                    letterSpacing="0.04em"
-                    lineHeight="tall"
-                    textTransform="uppercase"
-                    color="fg"
-                    userSelect="all"
-                    whiteSpace="normal"
-                    wordBreak="break-all"
-                  >
-                    {item._id}
-                  </Text>
-                </Box>
-              </Tooltip.Trigger>
-              <Tooltip.Positioner>
-                <Tooltip.Content maxW="min(100vw, 32rem)" px={3} py={2.5} borderRadius="md">
-                  <Text
-                    as="code"
-                    display="block"
-                    fontFamily="mono"
-                    fontSize="xs"
-                    lineHeight="tall"
-                    wordBreak="break-all"
-                    textTransform="uppercase"
-                    color="fg"
-                  >
-                    {item._id}
-                  </Text>
-                </Tooltip.Content>
-              </Tooltip.Positioner>
-            </Tooltip.Root>
+            <Box
+              display="flex"
+              alignItems="center"
+              gap={2}
+              alignSelf="stretch"
+              minH="9"
+              minW={0}
+              w="max-content"
+              maxW="100%"
+              flexShrink={1}
+              px={3.5}
+              py={1.5}
+              cursor="pointer"
+              bg="bg.muted"
+              borderRightRadius="l2"
+              _hover={{ bg: 'bg.emphasized' }}
+              transition="background 0.15s ease"
+              onClick={copyId}
+              title="Copy ID"
+            >
+              <Text
+                as="span"
+                fontFamily="mono"
+                fontSize="xs"
+                fontWeight="medium"
+                letterSpacing="0.04em"
+                lineHeight="tall"
+                textTransform="uppercase"
+                color={copied ? 'green.fg' : 'fg'}
+                userSelect="all"
+                whiteSpace="normal"
+                wordBreak="break-all"
+                transition="color 0.15s ease"
+              >
+                {copied ? 'Copied!' : item._id}
+              </Text>
+              <Box
+                as="span"
+                display="inline-flex"
+                flexShrink={0}
+                fontSize="xs"
+                color={copied ? 'green.fg' : 'fg.muted'}
+                transition="color 0.15s ease"
+              >
+                {copied ? <IconCheck /> : <IconCopy />}
+              </Box>
+            </Box>
           </HStack>
         </HStack>
 
