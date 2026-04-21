@@ -1,0 +1,5 @@
+Visually it is calmer than the old stack and I get to the same outcome with fewer detours; the part that still taxes me is mental — I have to relearn where state lives when I have been away for a sprint.
+Acknowledgements are not predictable: occasionally they land while I am still in the flow, other times the gap is long enough that I duplicate the attempt even though nothing explicitly failed.
+I genuinely could not tell if the hiccup lived in our browser profile or upstream; walking away and repeating the ritual an hour later behaved normally, so I filed it under "weird Tuesday" rather than opening a ticket.
+If annotations lived next to the object instead of living in my personal scratchpad, handoffs to design would stop losing nuance — right now context evaporates the moment someone joins mid-thread.
+With a handful of rows the flow feels decisive; once the batch grows, the affordances blur and I find myself undoing because I cannot trust what the last tap actually latched onto.

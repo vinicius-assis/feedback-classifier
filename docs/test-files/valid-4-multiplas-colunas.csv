@@ -1,0 +1,6 @@
+text,source,user,date
+From the customer call: they can live with the choreography, what erodes trust is the variance — sometimes same-day, sometimes enough lag that they reorganize their week around uncertainty.,slack,alice,2026-04-18
+The onboarding wizard still assumes everyone starts from the same baseline, but our enterprise accounts have wildly different setups and the first-run defaults land wrong more often than right.,web,bob,2026-04-17
+We tried the new reconciliation flow and the numbers matched — for the first time I did not have to manually cross-check the ledger before sending to finance.,web,carol,2026-04-16
+Whenever the integration drops mid-session the reconnect prompt is too subtle; half the team does not notice and keeps working on stale data until someone spots the badge.,slack,dave,2026-04-15
+The export finally respects the filter state, which sounds small but used to cost us twenty minutes every Friday afternoon.,web,eve,2026-04-14
