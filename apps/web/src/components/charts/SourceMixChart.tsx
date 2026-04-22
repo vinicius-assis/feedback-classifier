@@ -74,11 +74,11 @@ export function SourceMixChart({ buckets, isLoading }: Props) {
 
   if (isLoading) {
     return (
-      <Card.Root variant="outline" h="full">
-        <Card.Header>
+      <Card.Root variant="outline" h="full" display="flex" flexDir="column">
+        <Card.Header flexShrink={0}>
           <Card.Title>Source mix</Card.Title>
         </Card.Header>
-        <Card.Body>
+        <Card.Body flex="1" display="flex" flexDir="column" justifyContent="flex-end">
           <Skeleton height="120px" borderRadius="md" />
         </Card.Body>
       </Card.Root>
@@ -89,16 +89,25 @@ export function SourceMixChart({ buckets, isLoading }: Props) {
     <Card.Root
       variant="outline"
       h="full"
+      display="flex"
+      flexDir="column"
       transition="box-shadow 0.2s ease"
       _hover={{ boxShadow: 'md' }}
     >
-      <Card.Header pb={2} gap={1}>
+      <Card.Header pb={2} gap={1} flexShrink={0}>
         <Card.Title>Source mix</Card.Title>
         <Text fontSize="sm" color="fg.muted" fontWeight="normal">
           Items per ingestion channel
         </Text>
       </Card.Header>
-      <Card.Body pt={0} display="flex" flexDir="column" justifyContent="center" gap={4}>
+      <Card.Body
+        flex="1"
+        pt={0}
+        display="flex"
+        flexDir="column"
+        justifyContent="flex-end"
+        gap={4}
+      >
         <Box
           w="full"
           h="3"

@@ -74,7 +74,7 @@ export function Navbar() {
           <HStack gap={3} align="center" flexWrap="wrap">
             <HStack as="nav" gap={1} flexWrap="wrap" aria-label="Main">
               {LINKS.map(({ to, label }) => (
-                <NavLink key={to} to={to} end={to === '/dashboard'}>
+                <NavLink key={to} to={to} end={to === '/dashboard' || to === '/ingest'}>
                   {({ isActive }) => (
                     <Box
                       as="span"
