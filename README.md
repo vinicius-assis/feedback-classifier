@@ -1,5 +1,9 @@
 # Ledn Feedback Blackhole
 
+## Demo
+
+[Watch the Loom walkthrough](https://www.loom.com/share/49e3187532ea4f25b7c1b038f911fa85)
+
 ## The friction
 
 Sales and Customer Success teams constantly hear feature requests and bug reports. They usually dump this unstructured text into a massive #product-feedback Slack channel or a messy spreadsheet. Product Managers then have to spend hours manually reading, categorizing, and tallying these to figure out what users actually want.
@@ -108,3 +112,5 @@ Replace `<SLACK_INGEST_SECRET>` with the value from your `.env`.
 - **Duplicate** `externalMessageId` (already ingested): **200 OK** — returns the **existing** feedback document; no second document is created.
 
 This supports safe retries from integrations that resend the same stable message id.
+
+
