@@ -4,7 +4,6 @@ import {
   Container,
   Field,
   Heading,
-  NativeSelect,
   Stack,
   Text,
   Textarea,
@@ -15,13 +14,7 @@ import { FormEvent, useState } from 'react';
 import { useIngestFeedback } from '../hooks/useIngest';
 import { ApiError } from '../lib/api';
 import { toaster } from '../lib/toaster';
-import type { FeedbackItem, FeedbackSource } from '../lib/types';
-
-const SOURCE_OPTIONS: { value: FeedbackSource; label: string }[] = [
-  { value: 'web_form', label: 'Web form' },
-  { value: 'web_bulk', label: 'Web bulk' },
-  // { value: 'slack_like', label: 'Slack-like' }, // Slack — disabled in web app
-];
+import type { FeedbackItem } from '../lib/types';
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
@@ -70,7 +63,6 @@ function clearSlackFields(setters: {
 
 export function IngestPage() {
   const [rawText, setRawText] = useState('');
-  const [source, setSource] = useState<FeedbackSource>('web_form');
 
   const ingestFeedback = useIngestFeedback();
 
@@ -89,7 +81,7 @@ export function IngestPage() {
     }
 
     ingestFeedback.mutate(
-      { rawText: trimmed, source },
+      { rawText: trimmed, source: 'web_form' },
       {
         onSuccess: (data) => {
           const { type, description } = classificationToast(data);
@@ -141,23 +133,6 @@ export function IngestPage() {
                   rows={8}
                   resize="vertical"
                 />
-              </Field.Root>
-
-              <Field.Root>
-                <Field.Label>Source</Field.Label>
-                <NativeSelect.Root>
-                  <NativeSelect.Field
-                    value={source}
-                    onChange={(ev) => setSource(ev.target.value as FeedbackSource)}
-                  >
-                    {SOURCE_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </NativeSelect.Field>
-                  <NativeSelect.Indicator />
-                </NativeSelect.Root>
               </Field.Root>
 
               <Button type="submit" loading={isPending} alignSelf="flex-start">
