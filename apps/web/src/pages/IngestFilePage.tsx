@@ -3,31 +3,9 @@ import { FormEvent, useCallback, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
 import { useIngestFile } from '../hooks/useIngest';
-import { ApiError } from '../lib/api';
+import { errorMessage } from '../lib/errors';
+import { isAcceptedFile } from '../lib/files';
 import { toaster } from '../lib/toaster';
-
-const ACCEPTED_MIME = new Set([
-  'text/csv',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-]);
-
-function isAcceptedFile(file: File): boolean {
-  if (ACCEPTED_MIME.has(file.type)) {
-    return true;
-  }
-  const name = file.name.toLowerCase();
-  return name.endsWith('.csv') || name.endsWith('.xlsx');
-}
-
-function errorMessage(error: unknown): string {
-  if (error instanceof ApiError) {
-    return error.message;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return 'Request failed';
-}
 
 export function IngestFilePage() {
   const inputRef = useRef<HTMLInputElement>(null);

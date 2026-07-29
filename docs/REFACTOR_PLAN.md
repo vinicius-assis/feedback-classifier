@@ -62,63 +62,70 @@ Ações irreversíveis ou que dependem de acesso externo; não executadas.
 
 ---
 
-## Fase 1 — Infraestrutura de testes (hoje: zero)
+## Fase 1 — Infraestrutura de testes ✅ concluída
 
-O `apps/api` tem Jest + 2 specs. O `apps/web` não tem nenhum arquivo de teste, nenhuma dependência de teste e nem script `test` — assim como o `package.json` da raiz.
+Partiu de zero: o `apps/web` não tinha nenhum arquivo de teste, nenhuma dependência de teste e nem script `test`. Resultado: **148 testes em 16 arquivos**, cobertura global de **87,6%** de statements (`lib/` 95,9%, `hooks/` 100%).
 
 ### 1.1 Setup
 
-- [ ] Adicionar em `apps/web`: `vitest`, `@vitest/coverage-v8`, `jsdom`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, `msw`
-- [ ] `vite.config.ts` — bloco `test` com `environment: 'jsdom'`, `globals: true`, `setupFiles`
-- [ ] `src/test/setup.ts` — importar `@testing-library/jest-dom`, iniciar o server do MSW
-- [ ] `src/test/msw-handlers.ts` — handlers para `GET /feedback`, `GET /feedback/stats/summary`, `GET /feedback/:id`, `DELETE`, `POST /feedback`, `/bulk`, `/import`, `/reclassify`
-- [ ] `src/test/renderWithProviders.tsx` — helper com `QueryClientProvider` (`retry: false`), `ChakraProvider`, `MemoryRouter`
-- [ ] Script `"test": "vitest run"` e `"test:watch": "vitest"` em `apps/web/package.json`
-- [ ] Script `"test": "pnpm -r run test"` no `package.json` da raiz
+- [x] Dependências: `vitest`, `@vitest/coverage-v8`, `jsdom`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, `msw`
+- [x] `vite.config.ts` — bloco `test` com `jsdom`, `globals`, `setupFiles` e `env.VITE_API_BASE_URL` (a `lib/api.ts` lança sem essa variável)
+- [x] `src/test/setup.ts` — matchers do jest-dom, ciclo de vida do MSW, e polyfills de `matchMedia`/`ResizeObserver` que o jsdom não traz
+- [x] `src/test/msw-handlers.ts` + `src/test/server.ts` — handlers de happy path para todos os endpoints
+- [x] `src/test/fixtures.ts` — construtores de `FeedbackItem`, lista e stats (não previsto no plano, mas evitou repetição em 16 arquivos)
+- [x] `src/test/renderWithProviders.tsx` — `QueryClientProvider` + `ChakraProvider` + `MemoryRouter`
+- [x] Scripts `test`, `test:watch` e `test:coverage` em `apps/web`; `test` recursivo na raiz
 
-### 1.2 Testes unitários — lógica pura (maior retorno, menor custo)
+### 1.2 Testes unitários — lógica pura
 
-- [ ] `lib/api.ts` › `withQuery` — omite `undefined`, `null` e `''`; respeita `?` já existente na path
-- [ ] `lib/api.ts` › `parseResponseBody` — `204` → `undefined`, corpo vazio → `undefined`, `content-type` não-JSON → texto cru, JSON inválido → texto cru
-- [ ] `lib/api.ts` › `errorMessageFromBody` — extrai `message` do corpo, cai para `statusText`
-- [ ] `lib/api.ts` › `ApiError` — carrega `status` e `body` corretamente
-- [ ] `lib/api.ts` › `requestCore` — não seta `Content-Type` quando o body é `FormData`
-- [ ] `isAcceptedFile` (extraído de `IngestFilePage`) — `.csv`/`.xlsx` por mime e por extensão; rejeita o resto
-- [ ] `classificationToast` (extraído de `IngestPage`) — `failed` → warning; `success` com campos `unknown` filtrados; sem status → "Saved"
-- [ ] `bucketCounts` (após extração da Fase 3) — `_id: null` vira `'unknown'`
-- [ ] `formatDate` / `truncateText` (após consolidação) — data inválida, `undefined`, texto no limite exato
+Exigiu extrair os helpers das páginas, o que já entrega os itens da Fase 3.1 (ver lá).
+
+- [x] `lib/api.ts` › `withQuery` — omite `undefined`/`null`/`''`, respeita `?` existente, preserva `0`/`false`
+- [x] `lib/api.ts` › parsing — `204`, corpo vazio, `content-type` não-JSON, JSON malformado
+- [x] `lib/api.ts` › mensagens de erro — `message` do corpo, fallback para `statusText`, `message` em branco
+- [x] `lib/api.ts` › `ApiError` — carrega `status` e `body`
+- [x] `lib/api.ts` › headers — `Accept` sempre JSON; sem `Content-Type` forçado em `FormData`
+- [x] `lib/files.ts` › `isAcceptedFile` — por mime, por extensão, case-insensitive, rejeições
+- [x] `lib/classificationToast.ts` — `failed` → warning; campos `unknown` filtrados; fallbacks
+- [x] `lib/buckets.ts` › `bucketCounts` — `_id: null` vira `unknown`, chave repetida, chave ausente
+- [x] `lib/format.ts` › `formatDate` / `truncateText` / `humanizeSource` — data inválida, ausente, limite exato
 
 ### 1.3 Testes de hooks
 
-- [ ] `useFeedbackList` — monta a query string a partir dos filtros; `queryKey` muda quando os filtros mudam
-- [ ] `useFeedbackItem` — `enabled: false` quando o id é vazio
-- [ ] `useDeleteFeedback` — invalida a chave `['feedback']` no sucesso
-- [ ] `useReclassifyFeedback` — faz `setQueryData` no detail e invalida a list
-- [ ] `useIngestFeedback` / `useIngestBulk` / `useIngestFile` — invalidação após sucesso; `useIngestFile` monta o `FormData` com o campo `file`
-- [ ] `useCountUp` — com fake timers e `requestAnimationFrame` mockado; cobre o bug 2.1
+- [x] `useFeedbackList` — envia só os filtros preenchidos; refetch ao mudar filtro; propaga erro
+- [x] `useFeedbackItem` — desabilitado com id vazio; encoda o id na URL
+- [x] `useDeleteFeedback` — invalida `['feedback']` sem tocar em chaves alheias; propaga erro
+- [x] `useReclassifyFeedback` — `setQueryData` no detail + invalidação da list
+- [x] `useIngestFeedback` / `useIngestBulk` / `useIngestFile` — corpo enviado, invalidação, resultados por item
+- [x] `useCountUp` — com `requestAnimationFrame` controlado; **fixa o bug 2.1 num teste que documenta o comportamento errado atual**
 
 ### 1.4 Testes de componente
 
-- [ ] `DashboardPage` — renderiza os 4 KPIs a partir do stats mockado
-- [ ] `DashboardPage` — mudar um `<select>` de filtro dispara request com o param correto e reseta `page` para 1
-- [ ] `DashboardPage` — paginação: `Previous` desabilitado na página 1, `Next` desabilitado na última
-- [ ] `DashboardPage` — empty state ("No feedback matches these filters.")
-- [ ] `DashboardPage` — erro de stats e erro de list renderizam os respectivos alertas
-- [ ] `DashboardPage` — clicar na linha navega para `/feedback/:id`; clicar no lixo **não** navega e abre o diálogo
-- [ ] `DeleteFeedbackDialog` — confirmar chama `onConfirm`; cancelar chama `onClose`; ambos desabilitados durante `isDeleting`
-- [ ] `IngestPage` — submit vazio mostra toast de validação e não chama a API; sucesso limpa o textarea
-- [ ] `IngestBulkPage` — linhas em branco filtradas; > 20 linhas bloqueia com toast; resultado misto (fulfilled + rejected) monta a descrição certa
-- [ ] `IngestFilePage` — arquivo inválido rejeitado antes do submit; botão desabilitado sem arquivo; drag-and-drop aceita arquivo
-- [ ] `FeedbackDetailPage` — estados loading / 404 / erro genérico / sucesso
-- [ ] `FeedbackDetailPage` — botão Reclassify dispara mutation e toast
-- [ ] `Navbar` — link ativo recebe destaque; toggle de tema alterna
-- [ ] Smoke test dos 5 charts — renderizam com `buckets` vazio, `undefined` e populado, sem quebrar
+- [x] `DashboardPage` — KPIs, alertas de erro de stats e de list, stats vazio (`total: []`)
+- [x] `DashboardPage` — filtro dispara request com o param certo e reseta `page`; voltar para "All" remove o param; reset limpa tudo
+- [x] `DashboardPage` — paginação nos dois extremos e avanço de página
+- [x] `DashboardPage` — empty state; clique na linha navega; clique no lixo abre diálogo sem navegar
+- [x] `DashboardPage` — delete confirma, cancela e refaz a lista
+- [x] `DeleteFeedbackDialog` — confirmar, cancelar, fechado, e `Cancel` travado durante o delete
+- [x] `IngestPage` — validação nativa vs. guard JS, trim, limpeza do campo, classificação falha, erro da API
+- [x] `IngestBulkPage` — linhas em branco, limite de 20, resultado misto, falha de classificação, limpeza
+- [x] `IngestFilePage` — aceite/rejeição por seletor e por drag-and-drop, relatório de import, corte do preview de erros
+- [x] `FeedbackDetailPage` — id inválido, 404, erro genérico, conteúdo, metadata, reclassify (sucesso e falha)
+- [x] `Navbar` — links, hrefs, toggle de tema com label acessível
+- [x] Smoke test dos 5 charts — `undefined`, vazio e populado (incluindo `_id: null`), mais os totais de `SourceMix` e `ClassificationChart`
 
-### 1.5 E2E (opcional, mas fecha a lacuna de integração)
+### 1.5 E2E — **pendente** (opcional)
 
 - [ ] Playwright com fluxo `ingest → dashboard → detail → reclassify → delete`
 
----
+### Achados durante a Fase 1
+
+Coisas que só apareceram ao escrever os testes:
+
+1. **Validação JS parcialmente inalcançável no `IngestPage`.** O textarea é `required`, então o browser bloqueia o submit vazio antes do handler: o guard `if (!trimmed)` só roda para texto composto só de espaços. Não é bug — a validação nativa cobre o caso —, mas o toast "Please enter feedback text." nunca aparece para campo vazio.
+2. **Limitações do jsdom.** `request.formData()` do MSW quebra sob jsdom, e o undici não carrega nome nem conteúdo de um `File` do jsdom na serialização multipart. O teste de upload assere sobre o corpo cru (campo e MIME), não sobre o arquivo.
+3. **`userEvent.upload` respeita o atributo `accept`**, então não consegue exercitar a rejeição de tipo pelo seletor; esse caminho é coberto via `fireEvent.change` e via drag-and-drop.
+4. **Prettier**: os dois erros pré-existentes em `ClassificationChart.tsx` e `SourceMixChart.tsx` foram corrigidos pelo `--fix` ao longo da fase; `pnpm -r run lint:check` agora passa.
 
 ## Fase 2 — Bugs e riscos concretos
 
@@ -177,12 +184,12 @@ Reload ou compartilhar o link perde todo o estado.
 
 ## Fase 3 — Componentização
 
-### 3.1 Duplicação literal
+### 3.1 Duplicação literal ✅ concluída na Fase 1
 
-- [ ] **`bucketCounts`** — a mesma função está reescrita **6 vezes**: `DashboardPage:63`, `SentimentChart:508`, `UrgencyChart:650`, `FeatureAreaChart:928`, `ClassificationChart:1007`, `SourceMixChart:762` → extrair para `lib/buckets.ts`
-- [ ] **`errorMessage(error)`** — copiada byte a byte em `IngestPage:20`, `IngestBulkPage:22`, `IngestFilePage:26` → `lib/errors.ts`
-- [ ] **`formatDate`** — duplicada em `DashboardPage:76` (`Intl.DateTimeFormat`) e `FeedbackDetailPage:54` (`toLocaleString`), com formatos **divergentes** na mesma aplicação → `lib/format.ts`, formato único
-- [ ] **`type Props = { buckets: ...; isLoading: boolean }`** — repetido nos 5 charts → `StatBucket[]` em `lib/types.ts`
+- [x] **`bucketCounts`** — a mesma função está reescrita **6 vezes**: `DashboardPage:63`, `SentimentChart:508`, `UrgencyChart:650`, `FeatureAreaChart:928`, `ClassificationChart:1007`, `SourceMixChart:762` → extrair para `lib/buckets.ts`
+- [x] **`errorMessage(error)`** — copiada byte a byte em `IngestPage:20`, `IngestBulkPage:22`, `IngestFilePage:26` → `lib/errors.ts`
+- [x] **`formatDate`** — duplicada em `DashboardPage:76` (`Intl.DateTimeFormat`) e `FeedbackDetailPage:54` (`toLocaleString`), com formatos **divergentes** na mesma aplicação → `lib/format.ts`, formato único
+- [x] **`type Props = { buckets: ...; isLoading: boolean }`** — repetido nos 5 charts → `StatBucket[]` em `lib/types.ts`
 
 ### 3.2 Quebrar as páginas grandes
 
@@ -254,7 +261,7 @@ Hoje as constantes vivem em dois lugares desalinhados: `SENTIMENT_OPTIONS`/`FEAT
 
 - [x] `grep -rniI` do nome antigo da empresa na árvore de trabalho retorna vazio
 - [ ] `pnpm build` passa nos dois apps
-- [ ] `pnpm lint` passa sem warnings novos
-- [ ] `pnpm test` roda e passa em `apps/api` **e** `apps/web`
-- [ ] Cobertura do `apps/web` acima de um piso acordado (sugestão inicial: 60% em `lib/` e `hooks/`)
+- [x] `pnpm lint` passa sem warnings novos
+- [x] `pnpm test` roda e passa em `apps/api` (10) **e** `apps/web` (148)
+- [x] Cobertura do `apps/web` acima do piso de 60% em `lib/` (95,9%) e `hooks/` (100%)
 - [ ] Nenhum arquivo de página acima de ~250 linhas

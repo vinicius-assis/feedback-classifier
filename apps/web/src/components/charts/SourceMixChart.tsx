@@ -1,6 +1,8 @@
 import { Box, Card, HStack, Skeleton, Text, VStack } from '@chakra-ui/react';
 import { useEffect, useMemo, useState } from 'react';
 
+import { bucketCounts, type BucketChartProps } from '../../lib/buckets';
+
 /** Core sources shown in the chart; `slack_like` and any other API values roll into "Other". */
 type ChartSourceKey = 'web_form' | 'web_bulk' | 'web_file';
 
@@ -26,18 +28,10 @@ type ChartRow = {
   colorToken: string;
 };
 
-type Props = {
-  buckets: { _id: string | null; count: number }[] | undefined;
-  isLoading: boolean;
-};
-
-export function SourceMixChart({ buckets, isLoading }: Props) {
+export function SourceMixChart({ buckets, isLoading }: BucketChartProps) {
   const { rows, total } = useMemo(() => {
-    const m = new Map<string, number>();
     if (!buckets) return { rows: [] as ChartRow[], total: 0 };
-    for (const b of buckets) {
-      m.set(String(b._id ?? 'unknown'), b.count);
-    }
+    const m = bucketCounts(buckets);
     const fullTotal = [...m.values()].reduce((acc, v) => acc + v, 0);
 
     const coreRows: ChartRow[] = SOURCE_ORDER.map((key) => ({
@@ -100,14 +94,7 @@ export function SourceMixChart({ buckets, isLoading }: Props) {
           Items per ingestion channel
         </Text>
       </Card.Header>
-      <Card.Body
-        flex="1"
-        pt={0}
-        display="flex"
-        flexDir="column"
-        justifyContent="flex-end"
-        gap={4}
-      >
+      <Card.Body flex="1" pt={0} display="flex" flexDir="column" justifyContent="flex-end" gap={4}>
         <Box
           w="full"
           h="3"

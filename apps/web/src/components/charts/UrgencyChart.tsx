@@ -3,6 +3,7 @@ import { Chart, useChart } from '@chakra-ui/charts';
 import { useMemo } from 'react';
 import { Bar, BarChart, CartesianGrid, Rectangle, Tooltip, XAxis, YAxis } from 'recharts';
 
+import { bucketCounts, type BucketChartProps } from '../../lib/buckets';
 import type { Urgency } from '../../lib/types';
 
 const URGENCY_ORDER: Urgency[] = ['low', 'medium', 'high', 'unknown'];
@@ -19,20 +20,8 @@ const URGENCY_LABELS: Record<Urgency, string> = {
   unknown: 'Unknown',
 };
 
-type Props = {
-  buckets: { _id: string | null; count: number }[] | undefined;
-  isLoading: boolean;
-};
-
-export function UrgencyChart({ buckets, isLoading }: Props) {
-  const counts = useMemo(() => {
-    const m = new Map<string, number>();
-    if (!buckets) return m;
-    for (const b of buckets) {
-      m.set(String(b._id ?? 'unknown'), b.count);
-    }
-    return m;
-  }, [buckets]);
+export function UrgencyChart({ buckets, isLoading }: BucketChartProps) {
+  const counts = useMemo(() => bucketCounts(buckets), [buckets]);
 
   const data = useMemo(
     () =>

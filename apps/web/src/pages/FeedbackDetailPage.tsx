@@ -17,6 +17,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { useFeedbackItem, useReclassifyFeedback } from '../hooks/useFeedback';
 import { ApiError } from '../lib/api';
+import { formatDate, humanizeSource } from '../lib/format';
 import { toaster } from '../lib/toaster';
 import type { Sentiment, Urgency } from '../lib/types';
 
@@ -47,15 +48,6 @@ function urgencyPalette(urgency: Urgency | string): string {
     case 'unknown':
     default:
       return 'gray';
-  }
-}
-
-function formatDate(iso?: string): string {
-  if (!iso) return '—';
-  try {
-    return new Date(iso).toLocaleString();
-  } catch {
-    return iso;
   }
 }
 
@@ -432,7 +424,7 @@ export function FeedbackDetailPage() {
                   Source:{' '}
                 </Text>
                 <Text as="span" textTransform="capitalize">
-                  {item.source.replace(/_/g, ' ')}
+                  {humanizeSource(item.source)}
                 </Text>
               </Text>
               {item.sourceMetadata?.externalMessageId ? (

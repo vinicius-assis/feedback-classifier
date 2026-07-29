@@ -12,40 +12,9 @@ import {
 import { FormEvent, useState } from 'react';
 
 import { useIngestFeedback } from '../hooks/useIngest';
-import { ApiError } from '../lib/api';
+import { classificationToast } from '../lib/classificationToast';
+import { errorMessage } from '../lib/errors';
 import { toaster } from '../lib/toaster';
-import type { FeedbackItem } from '../lib/types';
-
-function errorMessage(error: unknown): string {
-  if (error instanceof ApiError) {
-    return error.message;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return 'Request failed';
-}
-
-function classificationToast(data: FeedbackItem): {
-  type: 'success' | 'warning';
-  description: string;
-} {
-  if (data.classificationStatus === 'failed') {
-    return { type: 'warning', description: 'Saved · Classification failed' };
-  }
-  if (data.classificationStatus === 'success') {
-    const parts = [
-      data.sentiment && data.sentiment !== 'unknown' ? `Sentiment: ${data.sentiment}` : null,
-      data.featureArea && data.featureArea !== 'unknown' ? `Area: ${data.featureArea}` : null,
-      data.urgency && data.urgency !== 'unknown' ? `Urgency: ${data.urgency}` : null,
-    ].filter(Boolean);
-    return {
-      type: 'success',
-      description: parts.length > 0 ? parts.join(' · ') : 'Classification complete',
-    };
-  }
-  return { type: 'success', description: 'Saved' };
-}
 
 /* Slack — clearSlackFields and slack ingest path removed (web app only)
 function clearSlackFields(setters: {

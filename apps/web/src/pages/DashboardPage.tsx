@@ -24,6 +24,8 @@ import { FeatureAreaChart } from '../components/charts/FeatureAreaChart';
 import { SentimentChart } from '../components/charts/SentimentChart';
 import { SourceMixChart } from '../components/charts/SourceMixChart';
 import { useCountUp } from '../hooks/useCountUp';
+import { bucketCounts } from '../lib/buckets';
+import { formatDate, humanizeSource, truncateText } from '../lib/format';
 import { UrgencyChart } from '../components/charts/UrgencyChart';
 import { DeleteFeedbackDialog } from '../components/DeleteFeedbackDialog';
 import { useDeleteFeedback, useFeedbackList } from '../hooks/useFeedback';
@@ -59,31 +61,6 @@ const SOURCE_OPTIONS: FeedbackSource[] = [
   // 'slack_like', // Slack — hidden in web app; API may still return for existing rows
 ];
 const CLASSIFICATION_STATUS_OPTIONS: ClassificationStatus[] = ['success', 'failed'];
-
-function bucketCounts(buckets: { _id: string | null; count: number }[]) {
-  const m = new Map<string, number>();
-  for (const b of buckets) {
-    m.set(String(b._id ?? 'unknown'), b.count);
-  }
-  return m;
-}
-
-function truncateText(text: string, max = 72) {
-  if (text.length <= max) return text;
-  return `${text.slice(0, max)}…`;
-}
-
-function formatDate(iso?: string) {
-  if (!iso) return '—';
-  try {
-    return new Intl.DateTimeFormat('en', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
 
 function AnimatedCount({
   value,
@@ -146,7 +123,7 @@ function FeedbackTableRow({
       <Table.Cell maxW="sm">
         <Text lineClamp={2}>{truncateText(item.rawText, 120)}</Text>
       </Table.Cell>
-      <Table.Cell textTransform="capitalize">{item.source.replace(/_/g, ' ')}</Table.Cell>
+      <Table.Cell textTransform="capitalize">{humanizeSource(item.source)}</Table.Cell>
       <Table.Cell textTransform="capitalize">{item.sentiment ?? '—'}</Table.Cell>
       <Table.Cell textTransform="capitalize">{item.featureArea ?? '—'}</Table.Cell>
       <Table.Cell textTransform="capitalize">{item.urgency ?? '—'}</Table.Cell>
@@ -483,7 +460,7 @@ export function DashboardPage() {
                   <option value="">All</option>
                   {SOURCE_OPTIONS.map((s) => (
                     <option key={s} value={s}>
-                      {s.replace(/_/g, ' ')}
+                      {humanizeSource(s)}
                     </option>
                   ))}
                 </NativeSelect.Field>

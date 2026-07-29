@@ -3,6 +3,7 @@ import { Chart, useChart } from '@chakra-ui/charts';
 import { useMemo } from 'react';
 import { Label, Pie, PieChart, Sector, Tooltip } from 'recharts';
 
+import { bucketCounts, type BucketChartProps } from '../../lib/buckets';
 import type { Sentiment } from '../../lib/types';
 
 const SENTIMENT_ORDER: Sentiment[] = ['positive', 'neutral', 'negative', 'unknown'];
@@ -19,20 +20,8 @@ const SENTIMENT_LABELS: Record<Sentiment, string> = {
   unknown: 'Unknown',
 };
 
-type Props = {
-  buckets: { _id: string | null; count: number }[] | undefined;
-  isLoading: boolean;
-};
-
-export function SentimentChart({ buckets, isLoading }: Props) {
-  const counts = useMemo(() => {
-    const m = new Map<string, number>();
-    if (!buckets) return m;
-    for (const b of buckets) {
-      m.set(String(b._id ?? 'unknown'), b.count);
-    }
-    return m;
-  }, [buckets]);
+export function SentimentChart({ buckets, isLoading }: BucketChartProps) {
+  const counts = useMemo(() => bucketCounts(buckets), [buckets]);
 
   const data = useMemo(
     () =>

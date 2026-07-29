@@ -3,6 +3,7 @@ import { Chart, useChart } from '@chakra-ui/charts';
 import { useMemo } from 'react';
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart, Tooltip } from 'recharts';
 
+import { bucketCounts, type BucketChartProps } from '../../lib/buckets';
 import type { FeatureArea } from '../../lib/types';
 
 const FEATURE_ORDER: FeatureArea[] = [
@@ -21,18 +22,10 @@ function formatLabel(key: string) {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-type Props = {
-  buckets: { _id: string | null; count: number }[] | undefined;
-  isLoading: boolean;
-};
-
-export function FeatureAreaChart({ buckets, isLoading }: Props) {
+export function FeatureAreaChart({ buckets, isLoading }: BucketChartProps) {
   const data = useMemo(() => {
-    const m = new Map<string, number>();
     if (!buckets) return [];
-    for (const b of buckets) {
-      m.set(String(b._id ?? 'unknown'), b.count);
-    }
+    const m = bucketCounts(buckets);
     return FEATURE_ORDER.map((key) => ({
       area: formatLabel(key),
       count: m.get(key) ?? 0,

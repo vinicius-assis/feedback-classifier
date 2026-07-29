@@ -13,20 +13,10 @@ import { FormEvent, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
 import { useIngestBulk } from '../hooks/useIngest';
-import { ApiError } from '../lib/api';
+import { errorMessage } from '../lib/errors';
 import { toaster } from '../lib/toaster';
 
 const MAX_ITEMS = 20;
-
-function errorMessage(error: unknown): string {
-  if (error instanceof ApiError) {
-    return error.message;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return 'Request failed';
-}
 
 export function IngestBulkPage() {
   const [bulkText, setBulkText] = useState('');

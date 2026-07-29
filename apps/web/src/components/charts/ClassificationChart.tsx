@@ -2,20 +2,10 @@ import { Card, HStack, Skeleton, Text } from '@chakra-ui/react';
 import { BarList, type BarListData, useChart } from '@chakra-ui/charts';
 import { useMemo } from 'react';
 
-type Props = {
-  buckets: { _id: string | null; count: number }[] | undefined;
-  isLoading: boolean;
-};
+import { bucketCounts, type BucketChartProps } from '../../lib/buckets';
 
-export function ClassificationChart({ buckets, isLoading }: Props) {
-  const counts = useMemo(() => {
-    const m = new Map<string, number>();
-    if (!buckets) return m;
-    for (const b of buckets) {
-      m.set(String(b._id ?? 'unknown'), b.count);
-    }
-    return m;
-  }, [buckets]);
+export function ClassificationChart({ buckets, isLoading }: BucketChartProps) {
+  const counts = useMemo(() => bucketCounts(buckets), [buckets]);
 
   const successCount = counts.get('success') ?? 0;
   const failedCount = counts.get('failed') ?? 0;
@@ -60,14 +50,7 @@ export function ClassificationChart({ buckets, isLoading }: Props) {
           Success vs failed runs
         </Text>
       </Card.Header>
-      <Card.Body
-        flex="1"
-        pt={0}
-        display="flex"
-        flexDir="column"
-        justifyContent="flex-end"
-        gap={4}
-      >
+      <Card.Body flex="1" pt={0} display="flex" flexDir="column" justifyContent="flex-end" gap={4}>
         <HStack justify="flex-end">
           <Text fontSize="xs" color="fg.muted">
             {total.toLocaleString()} total
