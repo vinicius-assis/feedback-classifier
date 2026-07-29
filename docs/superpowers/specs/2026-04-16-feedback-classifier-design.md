@@ -1,8 +1,8 @@
-# Design: Ledn Challenge — User Feedback Blackhole
+# Design: Feedback Classifier — User Feedback Blackhole
 
 **Data:** 2026-04-16  
 **Status:** Aprovado para implementação (brainstorming concluído)  
-**Referência:** `CHALLENGE_DESCRIPTION.md`, `FRICTION.md`
+**Referência:** `README.md`
 
 ## 1. Problema e objetivo
 
@@ -128,7 +128,6 @@ Prefixo global: `/api`.
 - ESLint + Prettier; TypeScript strict em `api` e `web`.
 - Testes mínimos: validação/parsing da classificação; integração com **mock** do cliente OpenAI ou testcontainers conforme tempo.
 - README: fricção, arquitetura (ASCII), `docker compose`, envs, limites, exemplo `curl` Slack-like.
-- Loom: problema → web → dashboard → `curl` → trade-offs (síncrono, Mongo, Docker, 201+failed).
 
 ## 10. Fora de escopo (MVP)
 
@@ -136,7 +135,6 @@ Redis/BullMQ, OAuth Slack real, Jira com credenciais reais, multi-tenant, RBAC c
 
 ## 11. Próximo passo
 
-Plano de implementação: [../plans/2026-04-16-ledn-feedback-blackhole-implementation-plan.md](../plans/2026-04-16-ledn-feedback-blackhole-implementation-plan.md).  
-Checklist: [../plans/2026-04-16-ledn-feedback-blackhole-TODO.md](../plans/2026-04-16-ledn-feedback-blackhole-TODO.md).
+Plano de implementação: [../plans/implementation-plan.md](../plans/implementation-plan.md).
 
 **Skills Cursor (opcional):** `nestjs-best-practices`, `frontend-design` — complementam convenções Nest e design de UI; **este spec e `.cursor/rules/` prevalecem** se houver divergência (ex.: scope MVP, sem Redis, contrato REST).

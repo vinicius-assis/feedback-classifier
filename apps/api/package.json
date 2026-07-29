@@ -1,5 +1,5 @@
 {
-  "name": "@ledn/api",
+  "name": "@feedback-classifier/api",
   "version": "0.0.0",
   "private": true,
   "scripts": {

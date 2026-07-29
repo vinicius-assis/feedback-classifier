@@ -19,7 +19,7 @@ createRoot(rootEl).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ChakraProvider value={system}>
-        <ColorModeProvider defaultTheme="dark" storageKey="ledn-feedback-theme">
+        <ColorModeProvider defaultTheme="dark" storageKey="feedback-classifier-theme">
           <AppToaster />
           <BrowserRouter>
             <App />

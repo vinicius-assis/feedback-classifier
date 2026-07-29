@@ -1,16 +1,16 @@
 ---
-description: Ledn challenge MVP — stack, spec source, boundaries (always)
+description: Feedback Classifier MVP — stack, spec source, boundaries (always)
 alwaysApply: true
 ---
 
-# Ledn Feedback Blackhole — core
+# Feedback Classifier — core
 
 ## Source of truth
 
 Implement and change behavior in line with:
 
-- `docs/superpowers/specs/2026-04-16-ledn-feedback-blackhole-design.md`
-- `docs/superpowers/plans/2026-04-16-ledn-feedback-blackhole-implementation-plan.md`
+- `docs/superpowers/specs/2026-04-16-feedback-classifier-design.md`
+- `docs/superpowers/plans/implementation-plan.md`
 
 If code and spec diverge, update spec/README or fix code—do not leave silent drift.
 

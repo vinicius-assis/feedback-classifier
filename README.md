@@ -1,8 +1,4 @@
-# Ledn Feedback Blackhole
-
-## Demo
-
-[Watch the Loom walkthrough](https://www.loom.com/share/49e3187532ea4f25b7c1b038f911fa85)
+# Feedback Classifier
 
 ## The friction
 
@@ -68,7 +64,7 @@ Runtime
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `MONGODB_URI` | Yes | Mongo connection string (e.g. `mongodb://localhost:27017/ledn_feedback`) |
+| `MONGODB_URI` | Yes | Mongo connection string (e.g. `mongodb://localhost:27017/feedback_classifier`) |
 | `OPENAI_API_KEY` | Yes | OpenAI API key for classification |
 | `OPENAI_MODEL` | No | Model name (default `gpt-4o-mini`) |
 | `SLACK_INGEST_SECRET` | Yes | Shared secret for the Slack-like ingest header |

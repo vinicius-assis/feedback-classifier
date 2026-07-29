@@ -66,7 +66,7 @@ export function Navbar() {
                 color={isActive ? 'fg' : 'fg.muted'}
                 _hover={{ color: 'fg' }}
               >
-                Ledn Feedback
+                Feedback Classifier
               </Text>
             )}
           </NavLink>

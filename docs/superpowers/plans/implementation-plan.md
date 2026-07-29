@@ -1,9 +1,8 @@
-# Implementation plan: Ledn Feedback Blackhole MVP
+# Implementation plan: Feedback Classifier MVP
 
-**Spec:** [../specs/2026-04-16-ledn-feedback-blackhole-design.md](../specs/2026-04-16-ledn-feedback-blackhole-design.md)  
-**Step-by-step checklist:** [2026-04-16-ledn-feedback-blackhole-TODO.md](./2026-04-16-ledn-feedback-blackhole-TODO.md)  
+**Spec:** [../specs/2026-04-16-feedback-classifier-design.md](../specs/2026-04-16-feedback-classifier-design.md)  
 **Date:** 2026-04-16  
-**Goal:** Ship a working monorepo (Nest + React + Mongo via Docker), spec flows, README, and a base for a Loom recording.
+**Goal:** Ship a working monorepo (Nest + React + Mongo via Docker), spec flows, and README.
 
 **Cursor skills (optional):** `nestjs-best-practices` (kadajett), `frontend-design` (Anthropic) — useful for Nest style and UI craft; **if they conflict with this plan/spec or `.cursor/rules/`, the repository wins.**
 
@@ -37,7 +36,7 @@
 | # | Task | Notes |
 |---|--------|--------|
 | B.1 | `docker-compose.yml`: `mongo` service, official image, named volume, `27017:27017`, **healthcheck** `mongosh --eval "db.adminCommand('ping')"`. | |
-| B.2 | Root: `.env.example` with `MONGODB_URI=mongodb://localhost:27017/ledn_feedback` (DB name of your choice, consistent in the README). | |
+| B.2 | Root: `.env.example` with `MONGODB_URI=mongodb://localhost:27017/feedback_classifier` (DB name of your choice, consistent in the README). | |
 
 **Acceptance:** `docker compose up -d` and `mongosh` / `docker compose ps` show a healthy service.
 
