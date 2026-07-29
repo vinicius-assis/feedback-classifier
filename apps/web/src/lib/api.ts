@@ -9,12 +9,20 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Same-origin default, served by the dev proxy in `vite.config.ts`. Set
+ * `VITE_API_BASE_URL` only when the API lives on another origin.
+ *
+ * This used to throw when unset, but the throw happened inside the query
+ * function, so a missing variable surfaced as a generic "connection error"
+ * instead of naming the real cause.
+ */
+export const DEFAULT_API_BASE_URL = '/api';
+
 function getBaseUrl(): string {
   const raw = import.meta.env.VITE_API_BASE_URL;
   if (typeof raw !== 'string' || !raw.trim()) {
-    throw new Error(
-      'VITE_API_BASE_URL is not set. Copy apps/web/.env.example to apps/web/.env.local and set the value.',
-    );
+    return DEFAULT_API_BASE_URL;
   }
   return raw.trim().replace(/\/$/, '');
 }

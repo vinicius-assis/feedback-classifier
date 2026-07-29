@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 
 import { useIngestFile } from '../hooks/useIngest';
 import { errorMessage } from '../lib/errors';
-import { isAcceptedFile } from '../lib/files';
+import { isAcceptedFile, isWithinSizeLimit, MAX_FILE_SIZE_BYTES } from '../lib/files';
 import { toaster } from '../lib/toaster';
 
 export function IngestFilePage() {
@@ -23,6 +23,14 @@ export function IngestFilePage() {
         type: 'error',
         title: 'Invalid file',
         description: 'Use a .csv or .xlsx file (one feedback per row, first column).',
+      });
+      return;
+    }
+    if (!isWithinSizeLimit(next)) {
+      toaster.create({
+        type: 'error',
+        title: 'File too large',
+        description: `Maximum size is ${MAX_FILE_SIZE_BYTES / 1024 / 1024} MB.`,
       });
       return;
     }

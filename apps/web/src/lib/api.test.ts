@@ -3,7 +3,16 @@ import { describe, expect, it } from 'vitest';
 
 import { API_BASE } from '../test/fixtures';
 import { server } from '../test/server';
-import { ApiError, get, post, postForm, postWithStatus, remove, withQuery } from './api';
+import {
+  ApiError,
+  DEFAULT_API_BASE_URL,
+  get,
+  post,
+  postForm,
+  postWithStatus,
+  remove,
+  withQuery,
+} from './api';
 
 describe('withQuery', () => {
   it('returns the path untouched when every param is omitted', () => {
@@ -172,5 +181,13 @@ describe('request building', () => {
       data: { _id: 'x' },
       status: 200,
     });
+  });
+});
+
+describe('base URL', () => {
+  it('defaults to the same-origin /api path', () => {
+    // The dev server proxies this, so local development needs no CORS setup
+    // and a missing env var no longer throws from inside a query function.
+    expect(DEFAULT_API_BASE_URL).toBe('/api');
   });
 });

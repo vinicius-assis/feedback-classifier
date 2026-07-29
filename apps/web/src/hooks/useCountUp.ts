@@ -1,24 +1,36 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Animates from 0 → `target` over `duration` ms using an ease-out curve.
- * Resets and re-runs whenever `target` changes from 0/undefined to a non-zero value.
+ * Animates the displayed number toward `target` over `duration` ms using an
+ * ease-out curve. Each run starts from whatever is currently on screen, so a
+ * refetch that nudges the value does not replay the count from zero.
  */
 export function useCountUp(target: number, duration = 700): number {
   const [value, setValue] = useState(0);
   const rafRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const fromRef = useRef(0);
+  /** Mirrors `value` so the effect can read it without depending on it. */
+  const valueRef = useRef(0);
 
   useEffect(() => {
-    if (target === 0) {
-      setValue(0);
+    const commit = (next: number) => {
+      valueRef.current = next;
+      setValue(next);
+    };
+
+    if (target === valueRef.current) {
       return;
     }
 
     if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
 
-    fromRef.current = 0;
+    if (target === 0) {
+      commit(0);
+      return;
+    }
+
+    fromRef.current = valueRef.current;
     startRef.current = null;
 
     const animate = (timestamp: number) => {
@@ -27,11 +39,11 @@ export function useCountUp(target: number, duration = 700): number {
       const progress = Math.min(elapsed / duration, 1);
       // ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.round(fromRef.current + (target - fromRef.current) * eased));
+      commit(Math.round(fromRef.current + (target - fromRef.current) * eased));
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(animate);
       } else {
-        setValue(target);
+        commit(target);
       }
     };
 

@@ -87,7 +87,11 @@ export function SentimentChart({ buckets, isLoading }: BucketChartProps) {
               paddingAngle={2}
               cornerRadius={4}
               shape={(props) => (
-                <Sector {...props} fill={chart.color(props.payload!.color)} stroke="none" />
+                <Sector
+                  {...props}
+                  fill={chart.color(props.payload?.color ?? 'gray.solid')}
+                  stroke="none"
+                />
               )}
             >
               <Label

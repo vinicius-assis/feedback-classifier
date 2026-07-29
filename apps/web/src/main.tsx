@@ -8,7 +8,18 @@ import { ColorModeProvider } from './components/ui/color-mode';
 import { AppToaster } from './lib/AppToaster';
 import { system } from './theme';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Feedback data changes on user action, not continuously, so avoid
+      // refetching both the list and the stats on every window focus.
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+    mutations: { retry: 0 },
+  },
+});
 
 const rootEl = document.getElementById('root');
 if (!rootEl) {

@@ -76,7 +76,7 @@ describe('useCountUp', () => {
     expect(cancelAnimationFrame).toHaveBeenCalled();
   });
 
-  it('restarts from zero when the target changes (known bug, see Phase 2)', () => {
+  it('animates from the current value when the target changes', () => {
     const { result, rerender } = renderHook(({ target }) => useCountUp(target, 700), {
       initialProps: { target: 10 },
     });
@@ -88,8 +88,38 @@ describe('useCountUp', () => {
     rerender({ target: 20 });
     advanceTo(0);
 
-    // Should hold at 10 and ease up to 20; instead it drops back to 0, which is
-    // what makes the dashboard KPIs flicker on every stats refetch.
+    // Holds at 10 rather than dropping to 0: this is what stops the dashboard
+    // KPIs from flickering on every stats refetch.
+    expect(result.current).toBe(10);
+
+    advanceTo(700);
+    expect(result.current).toBe(20);
+  });
+
+  it('does not re-animate when the target is unchanged', () => {
+    const { result, rerender } = renderHook(({ target }) => useCountUp(target, 700), {
+      initialProps: { target: 42 },
+    });
+
+    advanceTo(0);
+    advanceTo(700);
+    expect(result.current).toBe(42);
+
+    rerender({ target: 42 });
+    expect(frames).toHaveLength(0);
+    expect(result.current).toBe(42);
+  });
+
+  it('drops straight to zero when the data empties out', () => {
+    const { result, rerender } = renderHook(({ target }) => useCountUp(target, 700), {
+      initialProps: { target: 15 },
+    });
+
+    advanceTo(0);
+    advanceTo(700);
+    expect(result.current).toBe(15);
+
+    rerender({ target: 0 });
     expect(result.current).toBe(0);
   });
 });

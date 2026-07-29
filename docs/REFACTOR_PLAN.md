@@ -43,12 +43,12 @@ O nome antigo foi mapeado por `grep -rniI` em toda a árvore. O lockfile (`pnpm-
 - [x] `docs/superpowers/plans/implementation-plan.md` — título, link para a spec, `MONGODB_URI`
 - [x] Menções remanescentes ao vídeo de demo na spec e no plano de implementação
 
-### 0.4 Fora da árvore de arquivos — **pendente**
+### 0.4 Fora da árvore de arquivos — parcialmente concluída
 
-Ações irreversíveis ou que dependem de acesso externo; não executadas.
+O restante depende de ações irreversíveis ou de acesso externo.
 
-- [ ] Renomear o repositório no GitHub para `feedback-classifier`
-- [ ] `git remote set-url origin git@github.com:vinicius-assis/feedback-classifier.git`
+- [x] Renomear o repositório no GitHub para `feedback-classifier`
+- [x] `git remote set-url origin git@github.com:vinicius-assis/feedback-classifier.git`
 - [ ] Renomear o diretório local do projeto
 - [ ] Reescrever a mensagem do commit `3ea6126`, que cita a empresa — requer `git rebase` + `push --force`
 - [ ] Dropar/recriar o banco local com o novo nome, ou renomear a collection
@@ -127,60 +127,58 @@ Coisas que só apareceram ao escrever os testes:
 3. **`userEvent.upload` respeita o atributo `accept`**, então não consegue exercitar a rejeição de tipo pelo seletor; esse caminho é coberto via `fireEvent.change` e via drag-and-drop.
 4. **Prettier**: os dois erros pré-existentes em `ClassificationChart.tsx` e `SourceMixChart.tsx` foram corrigidos pelo `--fix` ao longo da fase; `pnpm -r run lint:check` agora passa.
 
-## Fase 2 — Bugs e riscos concretos
+## Fase 2 — Bugs e riscos concretos ✅ concluída
 
-### 2.1 `useCountUp` sempre anima a partir de zero
+Todos os oito itens resolvidos, cada um com teste. Suíte foi de 148 para **172 testes**.
 
-`hooks/useCountUp.ts:29` fixa `fromRef.current = 0`, contrariando o próprio JSDoc. Efeito prático: todo refetch de stats (ex.: após um delete) faz os 4 KPIs piscarem de 0 até o valor novo.
+### 2.1 `useCountUp` sempre animava a partir de zero ✅
 
-- [ ] Guardar o valor renderizado anterior num ref e animar `anterior → target`
-- [ ] Teste cobrindo transição N → M (item 1.3)
+`fromRef.current = 0` era fixo, contrariando o próprio JSDoc: todo refetch de stats fazia os 4 KPIs piscarem de 0 até o valor novo.
 
-### 2.2 `copyId` sem tratamento de erro
+- [x] `valueRef` espelha o valor renderizado; cada animação parte dele
+- [x] Curto-circuito quando `target` não mudou, evitando re-animar à toa
+- [x] Teste da Fase 1 invertido: agora afirma que segura em 10 e sobe para 20
 
-`FeedbackDetailPage:198` — `navigator.clipboard.writeText().then()` sem `.catch`. Rejeita em contexto não-seguro ou com permissão negada → unhandled rejection e nenhum feedback ao usuário. O `setTimeout` do estado `copied` também não tem cleanup, causando `setState` após unmount.
+### 2.2 `copyId` sem tratamento de erro ✅
 
-- [ ] Adicionar `.catch` com toast de erro
-- [ ] Guardar o timer num ref e limpar no unmount
+- [x] `.catch` com toast "Could not copy the ID" — antes era unhandled rejection silencioso em contexto não-seguro
+- [x] Timer guardado em ref e limpo no unmount, eliminando `setState` em árvore desmontada
+- [x] Testes de cópia com sucesso e com clipboard indisponível
 
-### 2.3 Sem ErrorBoundary e sem rota 404
+### 2.3 Sem ErrorBoundary e sem rota 404 ✅
 
-- [ ] `components/ErrorBoundary.tsx` envolvendo o `<AppShell />`
-- [ ] `<Route path="*" element={<NotFoundPage />} />` em `App.tsx`
+- [x] `components/ErrorBoundary.tsx` com fallback e botão "Try again"
+- [x] Montado **dentro** do `AppShell`, em volta do `<Outlet />`: um crash de página preserva a navbar. A `key={location.pathname}` limpa o erro ao navegar
+- [x] `pages/NotFoundPage.tsx` + rota `path="*"`
 
-### 2.4 `getBaseUrl()` lança dentro do `queryFn`
+### 2.4 `getBaseUrl()` lançava dentro do `queryFn` ✅
 
-`lib/api.ts:13` — se `VITE_API_BASE_URL` faltar, o usuário vê um erro genérico de conexão em vez da causa real.
+Variável ausente aparecia como "erro de conexão" genérico, escondendo a causa real.
 
-- [ ] Validar a env var no boot (`main.tsx`) com mensagem explícita, **ou**
-- [ ] Configurar `server.proxy` no `vite.config.ts` (hoje vazio) e usar `/api` como default — de quebra elimina a dependência de CORS em dev
+- [x] `DEFAULT_API_BASE_URL = '/api'` — same-origin, sem throw
+- [x] `server.proxy` no `vite.config.ts` (antes vazio) encaminhando `/api` para a API; dev deixa de depender de CORS
+- [x] `apps/web/.env.example` reescrito: a variável passa a ser opcional, só para API em outra origem
 
-### 2.5 `QueryClient` sem defaults
+### 2.5 `QueryClient` sem defaults ✅
 
-`main.tsx:11` — sem `staleTime`/`retry`, cada foco de janela refaz stats + list.
+- [x] `staleTime: 30s`, `refetchOnWindowFocus: false`, `retry: 1` nas queries e `retry: 0` nas mutations
 
-- [ ] Definir `defaultOptions.queries` com `staleTime`, `retry` e `refetchOnWindowFocus` conscientes
+### 2.6 Filtros do dashboard não persistiam na URL ✅
 
-### 2.6 Filtros do dashboard não persistem na URL
+- [x] `hooks/useFeedbackFilters.ts` sincroniza os filtros com `useSearchParams`
+- [x] Valores inválidos na URL são descartados em vez de repassados à API (inclusive `source=slack_like`, que a API conhece mas esta UI não oferece)
+- [x] `page=1` fica fora da URL; mudar filtro reseta a paginação; navegação usa `replace` para não poluir o histórico
+- [x] `lib/domain.ts` centraliza as listas de opções — **adianta parte da Fase 3.4** (a consolidação de labels/cores dos charts continua pendente lá)
+- [x] 11 testes do hook, e os testes de filtro do `DashboardPage` seguem passando sem alteração
 
-Reload ou compartilhar o link perde todo o estado.
+### 2.7 Non-null assertion nos charts ✅
 
-- [ ] Migrar `useState<FeedbackFilters>` para `useSearchParams`
-- [ ] Ganho colateral: o estado passa a ser testável via URL inicial
+- [x] `SentimentChart` › `props.payload!.color` → optional chaining com fallback `gray.solid`
 
-### 2.7 Non-null assertion nos charts
+### 2.8 Validação de tamanho de arquivo ausente ✅
 
-`SentimentChart:581` — `props.payload!`; se vier vazio, quebra o render do gráfico.
-
-- [ ] Substituir por optional chaining com fallback de cor
-
-### 2.8 Validação de tamanho de arquivo ausente
-
-`IngestFilePage` anuncia "max 10 MB" mas não valida nada no cliente.
-
-- [ ] Validar `file.size` em `pickFile`, com a mesma mensagem do servidor
-
----
+- [x] `isWithinSizeLimit` + `MAX_FILE_SIZE_BYTES` em `lib/files.ts`, aplicado em `pickFile`
+- [x] O "max 10 MB" que a UI anunciava agora é de fato verificado antes do upload
 
 ## Fase 3 — Componentização
 
@@ -262,6 +260,6 @@ Hoje as constantes vivem em dois lugares desalinhados: `SENTIMENT_OPTIONS`/`FEAT
 - [x] `grep -rniI` do nome antigo da empresa na árvore de trabalho retorna vazio
 - [ ] `pnpm build` passa nos dois apps
 - [x] `pnpm lint` passa sem warnings novos
-- [x] `pnpm test` roda e passa em `apps/api` (10) **e** `apps/web` (148)
+- [x] `pnpm test` roda e passa em `apps/api` (10) **e** `apps/web` (172)
 - [x] Cobertura do `apps/web` acima do piso de 60% em `lib/` (95,9%) e `hooks/` (100%)
 - [ ] Nenhum arquivo de página acima de ~250 linhas

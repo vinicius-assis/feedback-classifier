@@ -12,7 +12,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { useFeedbackItem, useReclassifyFeedback } from '../hooks/useFeedback';
@@ -128,6 +128,15 @@ export function FeedbackDetailPage() {
   const query = useFeedbackItem(id);
   const reclassifyMutation = useReclassifyFeedback(id);
   const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef<number | null>(null);
+
+  // Without this, navigating away mid-flash sets state on an unmounted tree.
+  useEffect(
+    () => () => {
+      if (copiedTimer.current !== null) window.clearTimeout(copiedTimer.current);
+    },
+    [],
+  );
 
   if (!id) {
     return (
@@ -186,10 +195,22 @@ export function FeedbackDetailPage() {
 
   const itemId = item._id;
   function copyId() {
-    navigator.clipboard.writeText(itemId).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
+    navigator.clipboard
+      .writeText(itemId)
+      .then(() => {
+        setCopied(true);
+        if (copiedTimer.current !== null) window.clearTimeout(copiedTimer.current);
+        copiedTimer.current = window.setTimeout(() => setCopied(false), 1500);
+      })
+      .catch(() => {
+        // Denied permission or an insecure context: tell the user instead of
+        // leaving a silent unhandled rejection.
+        toaster.create({
+          type: 'error',
+          title: 'Could not copy the ID',
+          description: 'Copy it manually from the field.',
+        });
+      });
   }
 
   return (

@@ -24,43 +24,21 @@ import { FeatureAreaChart } from '../components/charts/FeatureAreaChart';
 import { SentimentChart } from '../components/charts/SentimentChart';
 import { SourceMixChart } from '../components/charts/SourceMixChart';
 import { useCountUp } from '../hooks/useCountUp';
+import { useFeedbackFilters } from '../hooks/useFeedbackFilters';
 import { bucketCounts } from '../lib/buckets';
+import {
+  CLASSIFICATION_STATUS_OPTIONS,
+  FEATURE_AREA_OPTIONS,
+  SENTIMENT_OPTIONS,
+  SOURCE_OPTIONS,
+  URGENCY_OPTIONS,
+} from '../lib/domain';
 import { formatDate, humanizeSource, truncateText } from '../lib/format';
 import { UrgencyChart } from '../components/charts/UrgencyChart';
 import { DeleteFeedbackDialog } from '../components/DeleteFeedbackDialog';
 import { useDeleteFeedback, useFeedbackList } from '../hooks/useFeedback';
 import { useFeedbackStats } from '../hooks/useFeedbackStats';
-import type {
-  ClassificationStatus,
-  FeatureArea,
-  FeedbackFilters,
-  FeedbackItem,
-  FeedbackSource,
-  Sentiment,
-  Urgency,
-} from '../lib/types';
-
-const DEFAULT_FILTERS: FeedbackFilters = { page: 1, limit: 20 };
-
-const SENTIMENT_OPTIONS: Sentiment[] = ['positive', 'neutral', 'negative', 'unknown'];
-const FEATURE_AREA_OPTIONS: FeatureArea[] = [
-  'onboarding',
-  'payments',
-  'reporting',
-  'performance',
-  'security',
-  'integrations',
-  'other',
-  'unknown',
-];
-const URGENCY_OPTIONS: Urgency[] = ['low', 'medium', 'high', 'unknown'];
-const SOURCE_OPTIONS: FeedbackSource[] = [
-  'web_form',
-  'web_bulk',
-  'web_file',
-  // 'slack_like', // Slack — hidden in web app; API may still return for existing rows
-];
-const CLASSIFICATION_STATUS_OPTIONS: ClassificationStatus[] = ['success', 'failed'];
+import type { FeedbackItem } from '../lib/types';
 
 function AnimatedCount({
   value,
@@ -163,7 +141,7 @@ function FeedbackTableRow({
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<FeedbackFilters>(DEFAULT_FILTERS);
+  const { filters, setFilter, setPage, resetFilters } = useFeedbackFilters();
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const statsQuery = useFeedbackStats();
@@ -191,25 +169,8 @@ export function DashboardPage() {
   const page = filters.page ?? 1;
   const totalPages = Math.max(1, Math.ceil(totalItems / limit));
 
-  const updateFilter = <K extends keyof FeedbackFilters>(
-    key: K,
-    value: FeedbackFilters[K] | '',
-  ) => {
-    setFilters((prev) => ({
-      ...prev,
-      page: 1,
-      [key]: value === '' ? undefined : value,
-    }));
-  };
-
-  const resetFilters = () => setFilters(DEFAULT_FILTERS);
-
-  const goPrev = () => setFilters((f) => ({ ...f, page: Math.max(1, (f.page ?? 1) - 1) }));
-  const goNext = () =>
-    setFilters((f) => ({
-      ...f,
-      page: Math.min(totalPages, (f.page ?? 1) + 1),
-    }));
+  const goPrev = () => setPage(Math.max(1, page - 1));
+  const goNext = () => setPage(Math.min(totalPages, page + 1));
 
   return (
     <Container maxW="7xl" py={{ base: 6, md: 10 }}>
@@ -393,9 +354,7 @@ export function DashboardPage() {
               <NativeSelect.Root size="sm">
                 <NativeSelect.Field
                   value={filters.sentiment ?? ''}
-                  onChange={(e) =>
-                    updateFilter('sentiment', (e.target.value as Sentiment) || undefined)
-                  }
+                  onChange={(e) => setFilter('sentiment', e.target.value)}
                 >
                   <option value="">All</option>
                   {SENTIMENT_OPTIONS.map((s) => (
@@ -413,9 +372,7 @@ export function DashboardPage() {
               <NativeSelect.Root size="sm">
                 <NativeSelect.Field
                   value={filters.featureArea ?? ''}
-                  onChange={(e) =>
-                    updateFilter('featureArea', (e.target.value as FeatureArea) || undefined)
-                  }
+                  onChange={(e) => setFilter('featureArea', e.target.value)}
                 >
                   <option value="">All</option>
                   {FEATURE_AREA_OPTIONS.map((s) => (
@@ -433,9 +390,7 @@ export function DashboardPage() {
               <NativeSelect.Root size="sm">
                 <NativeSelect.Field
                   value={filters.urgency ?? ''}
-                  onChange={(e) =>
-                    updateFilter('urgency', (e.target.value as Urgency) || undefined)
-                  }
+                  onChange={(e) => setFilter('urgency', e.target.value)}
                 >
                   <option value="">All</option>
                   {URGENCY_OPTIONS.map((s) => (
@@ -453,9 +408,7 @@ export function DashboardPage() {
               <NativeSelect.Root size="sm">
                 <NativeSelect.Field
                   value={filters.source ?? ''}
-                  onChange={(e) =>
-                    updateFilter('source', (e.target.value as FeedbackSource) || undefined)
-                  }
+                  onChange={(e) => setFilter('source', e.target.value)}
                 >
                   <option value="">All</option>
                   {SOURCE_OPTIONS.map((s) => (
@@ -473,12 +426,7 @@ export function DashboardPage() {
               <NativeSelect.Root size="sm">
                 <NativeSelect.Field
                   value={filters.classificationStatus ?? ''}
-                  onChange={(e) =>
-                    updateFilter(
-                      'classificationStatus',
-                      (e.target.value as ClassificationStatus) || undefined,
-                    )
-                  }
+                  onChange={(e) => setFilter('classificationStatus', e.target.value)}
                 >
                   <option value="">All</option>
                   {CLASSIFICATION_STATUS_OPTIONS.map((s) => (

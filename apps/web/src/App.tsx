@@ -6,6 +6,7 @@ import { IngestBulkPage } from './pages/IngestBulkPage';
 import { IngestFilePage } from './pages/IngestFilePage';
 import { IngestPage } from './pages/IngestPage';
 import { IntegrationsPage } from './pages/IntegrationsPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 
 export function App() {
   return (
@@ -18,6 +19,7 @@ export function App() {
         <Route path="/ingest/file" element={<IngestFilePage />} />
         <Route path="/integrations" element={<IntegrationsPage />} />
         <Route path="/feedback/:id" element={<FeedbackDetailPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   );

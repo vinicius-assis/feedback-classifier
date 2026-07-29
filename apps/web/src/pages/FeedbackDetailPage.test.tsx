@@ -169,6 +169,38 @@ describe('FeedbackDetailPage actions', () => {
     );
   });
 
+  it('copies the id and flashes a confirmation', async () => {
+    const user = userEvent.setup();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
+
+    renderWithProviders(<FeedbackDetailPage />);
+    await user.click(await screen.findByTitle('Copy ID'));
+
+    expect(writeText).toHaveBeenCalledWith('abc123');
+    expect(await screen.findByText('Copied!')).toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  it('warns instead of throwing when the clipboard is unavailable', async () => {
+    const user = userEvent.setup();
+    const writeText = vi.fn().mockRejectedValue(new Error('denied'));
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
+
+    renderWithProviders(<FeedbackDetailPage />);
+    await user.click(await screen.findByTitle('Copy ID'));
+
+    await waitFor(() =>
+      expect(createToast).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'error', title: 'Could not copy the ID' }),
+      ),
+    );
+    expect(screen.queryByText('Copied!')).not.toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
   it('reports a failed reclassification', async () => {
     const user = userEvent.setup();
     server.use(
