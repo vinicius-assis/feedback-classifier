@@ -1,5 +1,5 @@
 import { IsIn, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
-import { FEEDBACK_SOURCES, type FeedbackSource } from '../schemas/feedback-item.schema';
+import { FEEDBACK_SOURCES, type FeedbackSource } from '@feedback-classifier/shared';
 
 export class CreateFeedbackDto {
   @IsString()

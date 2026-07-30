@@ -1,31 +1,23 @@
-/** Client types aligned with `apps/api` feedback schema and DTOs. */
+import type {
+  ClassificationStatus,
+  FeatureArea,
+  FeedbackSource,
+  Sentiment,
+  Urgency,
+} from './domain.js';
 
-/** Ingest source. `slack_like` is only returned by the API for legacy rows; Slack UI is disabled in the web app. */
-export type FeedbackSource = 'web_form' | 'web_bulk' | 'web_file' | 'slack_like';
+/**
+ * The HTTP contract between `apps/api` and `apps/web`: what the API returns and
+ * what it accepts. Dates are ISO strings, as they come out of JSON.
+ */
 
-export type FeatureArea =
-  | 'onboarding'
-  | 'payments'
-  | 'reporting'
-  | 'performance'
-  | 'security'
-  | 'integrations'
-  | 'other'
-  | 'unknown';
-
-export type Sentiment = 'positive' | 'neutral' | 'negative' | 'unknown';
-
-export type Urgency = 'low' | 'medium' | 'high' | 'unknown';
-
-export type ClassificationStatus = 'success' | 'failed';
-
+/** Slack-like ingest sends a stable id so retries stay idempotent. */
 export type SourceMetadata = {
   externalMessageId?: string;
   channel?: string;
   userDisplayName?: string;
 };
 
-/** JSON shape from the API (dates as ISO strings). */
 export type FeedbackItem = {
   _id: string;
   rawText: string;
@@ -52,13 +44,16 @@ export type FeedbackListResult = {
   limit: number;
 };
 
+/** A `$group` bucket from the stats aggregation. `_id` is null for never-classified docs. */
+export type StatBucket = { _id: string | null; count: number };
+
 export type FeedbackStatsSummary = {
   total: { count: number }[];
-  bySentiment: { _id: string | null; count: number }[];
-  byFeatureArea: { _id: string | null; count: number }[];
-  byUrgency: { _id: string | null; count: number }[];
-  bySource: { _id: string | null; count: number }[];
-  byClassificationStatus: { _id: string | null; count: number }[];
+  bySentiment: StatBucket[];
+  byFeatureArea: StatBucket[];
+  byUrgency: StatBucket[];
+  bySource: StatBucket[];
+  byClassificationStatus: StatBucket[];
 };
 
 export type BulkIngestResultItem =
@@ -84,11 +79,15 @@ export type FeedbackFilters = {
   classificationStatus?: ClassificationStatus;
 };
 
+/** Body for `POST /feedback`. */
 export type CreateFeedbackBody = {
   rawText: string;
   source?: FeedbackSource;
 };
 
+/** Body for `POST /feedback/bulk`. At most 20 items per request. */
 export type BulkFeedbackBody = {
   items: { rawText: string }[];
 };
+
+export const MAX_BULK_ITEMS = 20;

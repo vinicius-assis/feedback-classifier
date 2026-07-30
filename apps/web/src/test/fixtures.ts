@@ -1,4 +1,8 @@
-import type { FeedbackItem, FeedbackListResult, FeedbackStatsSummary } from '../lib/types';
+import type {
+  FeedbackItem,
+  FeedbackListResult,
+  FeedbackStatsSummary,
+} from '@feedback-classifier/shared';
 
 export const API_BASE = 'http://localhost:3000/api';
 

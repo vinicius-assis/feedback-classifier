@@ -9,7 +9,7 @@ import {
   SOURCE_OPTIONS,
   URGENCY_OPTIONS,
 } from '../lib/domain';
-import type { FeedbackFilters } from '../lib/types';
+import type { FeedbackFilters } from '@feedback-classifier/shared';
 
 export const DEFAULT_LIMIT = 20;
 

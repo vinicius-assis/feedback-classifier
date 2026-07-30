@@ -10,8 +10,9 @@ This MVP captures mock feedback, classifies it with an LLM (sentiment, feature a
 
 ```
 Monorepo
-  apps/api/     NestJS REST API (global prefix /api), default port 3000
-  apps/web/     React + Vite + Chakra UI, default port 5173
+  apps/api/          NestJS REST API (global prefix /api), default port 3000
+  apps/web/          React + Vite + Chakra UI, default port 5173
+  packages/shared/   Classification taxonomy and HTTP contract, used by both
 
 Runtime
   Browser (Vite dev server :5173)
@@ -78,6 +79,10 @@ See [`.env.example`](.env.example) for a template.
 ```bash
 pnpm build
 ```
+
+`packages/shared` is built first (pnpm resolves the workspace order), and emits
+both ESM for the web app and CommonJS for the API. `pnpm dev` and `pnpm test`
+build it up front for the same reason.
 
 ## Lint
 

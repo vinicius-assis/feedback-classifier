@@ -1,6 +1,6 @@
 import { Box, Card, HStack, Stack, Text } from '@chakra-ui/react';
 
-import type { FeedbackItem, Sentiment, Urgency } from '../../lib/types';
+import type { FeedbackItem, Sentiment, Urgency } from '@feedback-classifier/shared';
 import { StatusBadge } from '../StatusBadge';
 
 function sentimentPalette(sentiment: Sentiment): string {

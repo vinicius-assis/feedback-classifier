@@ -2,7 +2,7 @@ import { Card, HStack, Stack, Text } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
 
 import { formatDate, humanizeSource } from '../../lib/format';
-import type { FeedbackItem } from '../../lib/types';
+import type { FeedbackItem } from '@feedback-classifier/shared';
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (

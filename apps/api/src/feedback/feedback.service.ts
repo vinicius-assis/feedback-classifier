@@ -2,6 +2,8 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+import type { FeedbackSource } from '@feedback-classifier/shared';
+
 import {
   ClassificationError,
   ClassificationService,
@@ -9,12 +11,7 @@ import {
 import { BulkFeedbackItemDto } from './dto/bulk-feedback.dto';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { QueryFeedbackDto } from './dto/query-feedback.dto';
-import {
-  FeedbackItem,
-  FeedbackItemDocument,
-  FeedbackSource,
-  SourceMetadata,
-} from './schemas/feedback-item.schema';
+import { FeedbackItem, FeedbackItemDocument, SourceMetadata } from './schemas/feedback-item.schema';
 import * as XLSX from 'xlsx';
 
 const RAW_TEXT_MAX_LENGTH = 8192;

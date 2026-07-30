@@ -8,7 +8,7 @@ import {
   URGENCY_OPTIONS,
 } from '../../lib/domain';
 import { humanizeSource } from '../../lib/format';
-import type { FeedbackFilters as Filters } from '../../lib/types';
+import type { FeedbackFilters as Filters } from '@feedback-classifier/shared';
 import { SelectFilter } from './SelectFilter';
 
 type FeedbackFiltersProps = {

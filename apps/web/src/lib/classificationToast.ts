@@ -1,4 +1,4 @@
-import type { FeedbackItem } from './types';
+import type { FeedbackItem } from '@feedback-classifier/shared';
 
 /**
  * Turns a freshly ingested item into the toast the ingest screens show:

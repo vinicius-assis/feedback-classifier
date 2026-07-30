@@ -1,5 +1,4 @@
-/** A `$group` bucket as returned by the API stats aggregation. */
-export type StatBucket = { _id: string | null; count: number };
+import type { StatBucket } from '@feedback-classifier/shared';
 
 /** Props shared by every chart that renders a single stats dimension. */
 export type BucketChartProps = {

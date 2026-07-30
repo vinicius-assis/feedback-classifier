@@ -12,7 +12,7 @@ import {
   type Sentiment,
   URGENCIES,
   type Urgency,
-} from '../schemas/feedback-item.schema';
+} from '@feedback-classifier/shared';
 
 export class QueryFeedbackDto {
   @IsOptional()

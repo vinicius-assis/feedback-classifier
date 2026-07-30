@@ -10,6 +10,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@feedback-classifier/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@nestjs/common':
         specifier: ^11.1.19
         version: 11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -107,6 +110,9 @@ importers:
       '@chakra-ui/react':
         specifier: ^3.0.0
         version: 3.34.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@feedback-classifier/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@tanstack/react-query':
         specifier: ^5.99.2
         version: 5.99.2(react@18.3.1)
@@ -186,6 +192,12 @@ importers:
       vitest:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@25.6.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.0)(msw@2.15.0(@types/node@25.6.0)(typescript@5.9.3))(vite@6.4.2(@types/node@25.6.0)(terser@5.46.1))
+
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
 
 packages:
 

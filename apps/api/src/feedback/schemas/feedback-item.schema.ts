@@ -1,6 +1,19 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 
+import {
+  CLASSIFICATION_STATUSES,
+  type ClassificationStatus,
+  FEATURE_AREAS,
+  type FeatureArea,
+  FEEDBACK_SOURCES,
+  type FeedbackSource,
+  SENTIMENTS,
+  type Sentiment,
+  URGENCIES,
+  type Urgency,
+} from '@feedback-classifier/shared';
+
 /** Slack-like ingest must send a stable id for idempotent retries (spec §5). */
 @Schema({ _id: false })
 export class SourceMetadata {
@@ -13,31 +26,6 @@ export class SourceMetadata {
   @Prop({ type: String })
   userDisplayName?: string;
 }
-
-export const FEEDBACK_SOURCES = ['web_form', 'web_bulk', 'web_file', 'slack_like'] as const;
-export type FeedbackSource = (typeof FEEDBACK_SOURCES)[number];
-
-/** Closed taxonomy (v1) — keep in sync with prompt / Zod in Phase D. */
-export const FEATURE_AREAS = [
-  'onboarding',
-  'payments',
-  'reporting',
-  'performance',
-  'security',
-  'integrations',
-  'other',
-  'unknown',
-] as const;
-export type FeatureArea = (typeof FEATURE_AREAS)[number];
-
-export const SENTIMENTS = ['positive', 'neutral', 'negative', 'unknown'] as const;
-export type Sentiment = (typeof SENTIMENTS)[number];
-
-export const URGENCIES = ['low', 'medium', 'high', 'unknown'] as const;
-export type Urgency = (typeof URGENCIES)[number];
-
-export const CLASSIFICATION_STATUSES = ['success', 'failed'] as const;
-export type ClassificationStatus = (typeof CLASSIFICATION_STATUSES)[number];
 
 @Schema({ collection: 'feedback_items', timestamps: true })
 export class FeedbackItem {

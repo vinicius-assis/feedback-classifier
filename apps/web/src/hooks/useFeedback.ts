@@ -1,7 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { get, post, remove, withQuery } from '../lib/api';
-import type { FeedbackFilters, FeedbackItem, FeedbackListResult } from '../lib/types';
+import type {
+  FeedbackFilters,
+  FeedbackItem,
+  FeedbackListResult,
+} from '@feedback-classifier/shared';
 
 function listPath(filters: FeedbackFilters): string {
   return withQuery('/feedback', {

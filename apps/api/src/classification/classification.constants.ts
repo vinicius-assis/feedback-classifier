@@ -6,7 +6,7 @@ import {
   Sentiment,
   URGENCIES,
   Urgency,
-} from '../feedback/schemas/feedback-item.schema';
+} from '@feedback-classifier/shared';
 
 /** Nest injection token for the OpenAI SDK client. */
 export const OPENAI_CLIENT = 'OPENAI_CLIENT';

@@ -1,7 +1,7 @@
 import { Button, Table, Text } from '@chakra-ui/react';
 
 import { formatDate, humanizeSource, truncateText } from '../../lib/format';
-import type { FeedbackItem } from '../../lib/types';
+import type { FeedbackItem } from '@feedback-classifier/shared';
 import { TrashIcon } from '../icons';
 import { StatusBadge } from '../StatusBadge';
 

@@ -1,6 +1,6 @@
 import { Skeleton, Table, Text } from '@chakra-ui/react';
 
-import type { FeedbackItem } from '../../lib/types';
+import type { FeedbackItem } from '@feedback-classifier/shared';
 import { FeedbackTableRow } from './FeedbackTableRow';
 
 const COLUMNS = [

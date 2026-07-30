@@ -7,7 +7,7 @@ import type {
   CreateFeedbackBody,
   FeedbackImportResult,
   FeedbackItem,
-} from '../lib/types';
+} from '@feedback-classifier/shared';
 
 function useInvalidateFeedback() {
   const queryClient = useQueryClient();

@@ -2,13 +2,16 @@ import { Button, Container, Field, Text, Textarea, VStack } from '@chakra-ui/rea
 import { FormEvent, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
+import { MAX_BULK_ITEMS } from '@feedback-classifier/shared';
+
 import { FormCard } from '../components/FormCard';
 import { PageHeader } from '../components/PageHeader';
 import { useIngestBulk } from '../hooks/useIngest';
 import { errorMessage } from '../lib/errors';
 import { toaster } from '../lib/toaster';
 
-const MAX_ITEMS = 20;
+/** The API rejects anything above this, so fail fast before the round trip. */
+const MAX_ITEMS = MAX_BULK_ITEMS;
 
 export function IngestBulkPage() {
   const [bulkText, setBulkText] = useState('');

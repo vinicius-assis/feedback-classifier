@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { StatBucket } from '../../lib/buckets';
+import type { StatBucket } from '@feedback-classifier/shared';
 import { renderWithProviders } from '../../test/renderWithProviders';
 import { ClassificationChart } from './ClassificationChart';
 import { FeatureAreaChart } from './FeatureAreaChart';
