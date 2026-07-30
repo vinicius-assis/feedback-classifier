@@ -1,143 +1,32 @@
 import {
-  Alert,
-  Badge,
   Button,
-  Card,
   Container,
-  Field,
   Heading,
   HStack,
-  NativeSelect,
   SimpleGrid,
-  Skeleton,
   Stack,
-  Table,
   Text,
   VStack,
 } from '@chakra-ui/react';
-// Badge, Card, Skeleton kept for KPI cards; Stack kept for loading states
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { ClassificationChart } from '../components/charts/ClassificationChart';
 import { FeatureAreaChart } from '../components/charts/FeatureAreaChart';
 import { SentimentChart } from '../components/charts/SentimentChart';
 import { SourceMixChart } from '../components/charts/SourceMixChart';
-import { useCountUp } from '../hooks/useCountUp';
-import { useFeedbackFilters } from '../hooks/useFeedbackFilters';
-import { bucketCounts } from '../lib/buckets';
-import {
-  CLASSIFICATION_STATUS_OPTIONS,
-  FEATURE_AREA_OPTIONS,
-  SENTIMENT_OPTIONS,
-  SOURCE_OPTIONS,
-  URGENCY_OPTIONS,
-} from '../lib/domain';
-import { formatDate, humanizeSource, truncateText } from '../lib/format';
 import { UrgencyChart } from '../components/charts/UrgencyChart';
+import { FeedbackFilters } from '../components/dashboard/FeedbackFilters';
+import { FeedbackTable } from '../components/dashboard/FeedbackTable';
+import { Pagination } from '../components/dashboard/Pagination';
+import { StatCard } from '../components/dashboard/StatCard';
 import { DeleteFeedbackDialog } from '../components/DeleteFeedbackDialog';
+import { ErrorAlert } from '../components/ErrorAlert';
 import { useDeleteFeedback, useFeedbackList } from '../hooks/useFeedback';
+import { useFeedbackFilters } from '../hooks/useFeedbackFilters';
 import { useFeedbackStats } from '../hooks/useFeedbackStats';
-import type { FeedbackItem } from '../lib/types';
-
-function AnimatedCount({
-  value,
-  ...textProps
-}: { value: number } & React.ComponentProps<typeof Text>) {
-  const animated = useCountUp(value);
-  return <Text {...textProps}>{animated.toLocaleString()}</Text>;
-}
-
-function TrashIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="1.1em"
-      height="1.1em"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="M3 6h18" />
-      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-      <path d="M10 11v6" />
-      <path d="M14 11v6" />
-    </svg>
-  );
-}
-
-function FeedbackTableRow({
-  item,
-  onOpen,
-  onDelete,
-  isDeleting,
-}: {
-  item: FeedbackItem;
-  onOpen: (id: string) => void;
-  onDelete: (id: string) => void;
-  isDeleting: boolean;
-}) {
-  const failed = item.classificationStatus === 'failed';
-  return (
-    <Table.Row
-      cursor="pointer"
-      onClick={() => onOpen(item._id)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onOpen(item._id);
-        }
-      }}
-      tabIndex={0}
-      bg={failed ? 'red.subtle' : undefined}
-      _hover={{ bg: failed ? 'red.muted' : 'bg.subtle' }}
-    >
-      <Table.Cell whiteSpace="nowrap">{formatDate(item.createdAt)}</Table.Cell>
-      <Table.Cell maxW="sm">
-        <Text lineClamp={2}>{truncateText(item.rawText, 120)}</Text>
-      </Table.Cell>
-      <Table.Cell textTransform="capitalize">{humanizeSource(item.source)}</Table.Cell>
-      <Table.Cell textTransform="capitalize">{item.sentiment ?? '—'}</Table.Cell>
-      <Table.Cell textTransform="capitalize">{item.featureArea ?? '—'}</Table.Cell>
-      <Table.Cell textTransform="capitalize">{item.urgency ?? '—'}</Table.Cell>
-      <Table.Cell>
-        {item.classificationStatus ? (
-          <Badge
-            colorPalette={failed ? 'red' : 'green'}
-            variant="subtle"
-            textTransform="uppercase"
-            fontSize="xs"
-            letterSpacing="wide"
-          >
-            {item.classificationStatus}
-          </Badge>
-        ) : (
-          '—'
-        )}
-      </Table.Cell>
-      <Table.Cell onClick={(e) => e.stopPropagation()}>
-        <Button
-          size="xs"
-          variant="ghost"
-          colorPalette="red"
-          aria-label="Remove feedback"
-          loading={isDeleting}
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(item._id);
-          }}
-        >
-          <TrashIcon />
-        </Button>
-      </Table.Cell>
-    </Table.Row>
-  );
-}
+import { bucketCounts } from '../lib/buckets';
+import { SOURCE_OPTIONS } from '../lib/domain';
 
 export function DashboardPage() {
   const navigate = useNavigate();
@@ -169,9 +58,6 @@ export function DashboardPage() {
   const page = filters.page ?? 1;
   const totalPages = Math.max(1, Math.ceil(totalItems / limit));
 
-  const goPrev = () => setPage(Math.max(1, page - 1));
-  const goNext = () => setPage(Math.min(totalPages, page + 1));
-
   return (
     <Container maxW="7xl" py={{ base: 6, md: 10 }}>
       <VStack align="stretch" gap={{ base: 8, md: 10 }}>
@@ -195,131 +81,38 @@ export function DashboardPage() {
         </HStack>
 
         {statsQuery.isError ? (
-          <Alert.Root status="error" variant="subtle">
-            <Alert.Title>Could not load stats</Alert.Title>
-            <Alert.Description>Check the API connection and try again.</Alert.Description>
-          </Alert.Root>
+          <ErrorAlert
+            title="Could not load stats"
+            description="Check the API connection and try again."
+          />
         ) : null}
 
         <SimpleGrid columns={{ base: 1, sm: 2, xl: 4 }} gap={4}>
-          <Card.Root
-            variant="outline"
-            overflow="hidden"
-            position="relative"
-            transition="box-shadow 0.2s ease, border-color 0.2s ease"
-            _hover={{ boxShadow: 'md' }}
-            _before={{
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '3px',
-              bg: 'brand.solid',
-              opacity: 0.85,
-            }}
-          >
-            <Card.Header pb={1}>
-              <Card.Title fontSize="sm" fontWeight="medium" color="fg.muted">
-                Total feedback
-              </Card.Title>
-            </Card.Header>
-            <Card.Body pt={0}>
-              {statsQuery.isLoading ? (
-                <Skeleton height="12" maxW="120px" />
-              ) : (
-                <AnimatedCount
-                  value={totalCount}
-                  fontSize="4xl"
-                  fontWeight="bold"
-                  letterSpacing="-0.03em"
-                  lineHeight="1"
-                />
-              )}
-            </Card.Body>
-          </Card.Root>
-
-          <Card.Root
-            variant="outline"
-            overflow="hidden"
-            transition="box-shadow 0.2s ease"
-            _hover={{ boxShadow: 'md' }}
-          >
-            <Card.Header pb={1}>
-              <Card.Title fontSize="sm" fontWeight="medium" color="fg.muted">
-                Classified (success)
-              </Card.Title>
-            </Card.Header>
-            <Card.Body pt={0}>
-              {statsQuery.isLoading ? (
-                <Skeleton height="12" maxW="120px" />
-              ) : (
-                <AnimatedCount
-                  value={successCount}
-                  fontSize="4xl"
-                  fontWeight="bold"
-                  color="green.fg"
-                  letterSpacing="-0.03em"
-                />
-              )}
-            </Card.Body>
-          </Card.Root>
-
-          <Card.Root
-            variant="outline"
-            overflow="hidden"
+          <StatCard
+            title="Total feedback"
+            value={totalCount}
+            isLoading={statsQuery.isLoading}
+            accent
+          />
+          <StatCard
+            title="Classified (success)"
+            value={successCount}
+            isLoading={statsQuery.isLoading}
+            valueColor="green.fg"
+          />
+          <StatCard
+            title="Classification failed"
+            value={failedCount}
+            isLoading={statsQuery.isLoading}
+            valueColor={failedCount > 0 ? 'red.fg' : 'fg'}
             borderColor={failedCount > 0 ? 'red.emphasized' : undefined}
-            transition="box-shadow 0.2s ease"
-            _hover={{ boxShadow: 'md' }}
-          >
-            <Card.Header pb={1}>
-              <Card.Title fontSize="sm" fontWeight="medium" color="fg.muted">
-                Classification failed
-              </Card.Title>
-            </Card.Header>
-            <Card.Body pt={0}>
-              {statsQuery.isLoading ? (
-                <Skeleton height="12" maxW="120px" />
-              ) : (
-                <AnimatedCount
-                  value={failedCount}
-                  fontSize="4xl"
-                  fontWeight="bold"
-                  color={failedCount > 0 ? 'red.fg' : 'fg'}
-                  letterSpacing="-0.03em"
-                />
-              )}
-            </Card.Body>
-          </Card.Root>
-
-          <Card.Root
-            variant="outline"
-            transition="box-shadow 0.2s ease"
-            _hover={{ boxShadow: 'md' }}
-          >
-            <Card.Header pb={1}>
-              <Card.Title fontSize="sm" fontWeight="medium" color="fg.muted">
-                Active source channels
-              </Card.Title>
-            </Card.Header>
-            <Card.Body pt={0}>
-              {statsQuery.isLoading ? (
-                <Skeleton height="12" maxW="120px" />
-              ) : (
-                <HStack gap={2} align="baseline">
-                  <AnimatedCount
-                    value={activeSourceChannels}
-                    fontSize="4xl"
-                    fontWeight="bold"
-                    letterSpacing="-0.03em"
-                  />
-                  <Text fontSize="sm" color="fg.muted">
-                    / {SOURCE_OPTIONS.length}
-                  </Text>
-                </HStack>
-              )}
-            </Card.Body>
-          </Card.Root>
+          />
+          <StatCard
+            title="Active source channels"
+            value={activeSourceChannels}
+            isLoading={statsQuery.isLoading}
+            suffix={`/ ${SOURCE_OPTIONS.length}`}
+          />
         </SimpleGrid>
 
         <VStack align="stretch" gap={4}>
@@ -346,193 +139,34 @@ export function DashboardPage() {
           </SimpleGrid>
         </VStack>
 
-        <Stack gap={4}>
-          <Heading size="md">Filters</Heading>
-          <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 5 }} gap={4}>
-            <Field.Root>
-              <Field.Label>Sentiment</Field.Label>
-              <NativeSelect.Root size="sm">
-                <NativeSelect.Field
-                  value={filters.sentiment ?? ''}
-                  onChange={(e) => setFilter('sentiment', e.target.value)}
-                >
-                  <option value="">All</option>
-                  {SENTIMENT_OPTIONS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-                <NativeSelect.Indicator />
-              </NativeSelect.Root>
-            </Field.Root>
-
-            <Field.Root>
-              <Field.Label>Feature area</Field.Label>
-              <NativeSelect.Root size="sm">
-                <NativeSelect.Field
-                  value={filters.featureArea ?? ''}
-                  onChange={(e) => setFilter('featureArea', e.target.value)}
-                >
-                  <option value="">All</option>
-                  {FEATURE_AREA_OPTIONS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-                <NativeSelect.Indicator />
-              </NativeSelect.Root>
-            </Field.Root>
-
-            <Field.Root>
-              <Field.Label>Urgency</Field.Label>
-              <NativeSelect.Root size="sm">
-                <NativeSelect.Field
-                  value={filters.urgency ?? ''}
-                  onChange={(e) => setFilter('urgency', e.target.value)}
-                >
-                  <option value="">All</option>
-                  {URGENCY_OPTIONS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-                <NativeSelect.Indicator />
-              </NativeSelect.Root>
-            </Field.Root>
-
-            <Field.Root>
-              <Field.Label>Source</Field.Label>
-              <NativeSelect.Root size="sm">
-                <NativeSelect.Field
-                  value={filters.source ?? ''}
-                  onChange={(e) => setFilter('source', e.target.value)}
-                >
-                  <option value="">All</option>
-                  {SOURCE_OPTIONS.map((s) => (
-                    <option key={s} value={s}>
-                      {humanizeSource(s)}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-                <NativeSelect.Indicator />
-              </NativeSelect.Root>
-            </Field.Root>
-
-            <Field.Root>
-              <Field.Label>Classification status</Field.Label>
-              <NativeSelect.Root size="sm">
-                <NativeSelect.Field
-                  value={filters.classificationStatus ?? ''}
-                  onChange={(e) => setFilter('classificationStatus', e.target.value)}
-                >
-                  <option value="">All</option>
-                  {CLASSIFICATION_STATUS_OPTIONS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-                <NativeSelect.Indicator />
-              </NativeSelect.Root>
-            </Field.Root>
-          </SimpleGrid>
-
-          <HStack justify="flex-end">
-            <Button size="sm" variant="outline" onClick={resetFilters}>
-              Reset filters
-            </Button>
-          </HStack>
-        </Stack>
+        <FeedbackFilters filters={filters} onChange={setFilter} onReset={resetFilters} />
 
         {listQuery.isError ? (
-          <Alert.Root status="error" variant="subtle">
-            <Alert.Title>Could not load feedback list</Alert.Title>
-            <Alert.Description>Check the API connection and try again.</Alert.Description>
-          </Alert.Root>
+          <ErrorAlert
+            title="Could not load feedback list"
+            description="Check the API connection and try again."
+          />
         ) : null}
 
         <Stack gap={3}>
           <HStack justify="space-between" flexWrap="wrap" gap={3}>
             <Heading size="md">Feedback</Heading>
-            <HStack gap={2}>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={goPrev}
-                disabled={page <= 1 || listQuery.isLoading}
-              >
-                Previous
-              </Button>
-              <Text fontSize="sm" color="fg.muted">
-                Page {page} of {totalPages}
-              </Text>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={goNext}
-                disabled={page >= totalPages || listQuery.isLoading}
-              >
-                Next
-              </Button>
-            </HStack>
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              isLoading={listQuery.isLoading}
+              onPrev={() => setPage(Math.max(1, page - 1))}
+              onNext={() => setPage(Math.min(totalPages, page + 1))}
+            />
           </HStack>
 
-          <Table.ScrollArea borderWidth="1px" rounded="md">
-            <Table.Root size="sm" striped interactive>
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeader>Date</Table.ColumnHeader>
-                  <Table.ColumnHeader>Text</Table.ColumnHeader>
-                  <Table.ColumnHeader>Source</Table.ColumnHeader>
-                  <Table.ColumnHeader>Sentiment</Table.ColumnHeader>
-                  <Table.ColumnHeader>Feature area</Table.ColumnHeader>
-                  <Table.ColumnHeader>Urgency</Table.ColumnHeader>
-                  <Table.ColumnHeader>Status</Table.ColumnHeader>
-                  <Table.ColumnHeader w="1%">Actions</Table.ColumnHeader>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {listQuery.isLoading
-                  ? Array.from({ length: 5 }).map((_, i) => (
-                      <Table.Row key={i}>
-                        {Array.from({ length: 8 }).map((__, j) => (
-                          <Table.Cell key={j}>
-                            <Skeleton height="4" />
-                          </Table.Cell>
-                        ))}
-                      </Table.Row>
-                    ))
-                  : null}
-
-                {!listQuery.isLoading && list && list.data.length === 0 ? (
-                  <Table.Row>
-                    <Table.Cell colSpan={8}>
-                      <Text color="fg.muted" py={4} textAlign="center">
-                        No feedback matches these filters.
-                      </Text>
-                    </Table.Cell>
-                  </Table.Row>
-                ) : null}
-
-                {!listQuery.isLoading && list
-                  ? list.data.map((item) => (
-                      <FeedbackTableRow
-                        key={item._id}
-                        item={item}
-                        onOpen={(id) => navigate(`/feedback/${id}`)}
-                        onDelete={(id) => setPendingDeleteId(id)}
-                        isDeleting={
-                          deleteFeedback.isPending && deleteFeedback.variables === item._id
-                        }
-                      />
-                    ))
-                  : null}
-              </Table.Body>
-            </Table.Root>
-          </Table.ScrollArea>
+          <FeedbackTable
+            items={list?.data}
+            isLoading={listQuery.isLoading}
+            deletingId={deleteFeedback.isPending ? (deleteFeedback.variables ?? null) : null}
+            onOpen={(id) => navigate(`/feedback/${id}`)}
+            onDelete={(id) => setPendingDeleteId(id)}
+          />
         </Stack>
       </VStack>
 
