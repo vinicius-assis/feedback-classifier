@@ -8,20 +8,6 @@ import { classificationToast } from '../lib/classificationToast';
 import { errorMessage } from '../lib/errors';
 import { toaster } from '../lib/toaster';
 
-/* Slack — clearSlackFields and slack ingest path removed (web app only)
-function clearSlackFields(setters: {
-  setExternalMessageId: (v: string) => void;
-  setChannel: (v: string) => void;
-  setUserDisplayName: (v: string) => void;
-  setIngestSecret: (v: string) => void;
-}) {
-  setters.setExternalMessageId('');
-  setters.setChannel('');
-  setters.setUserDisplayName('');
-  setters.setIngestSecret('');
-}
-*/
-
 export function IngestPage() {
   const [rawText, setRawText] = useState('');
 

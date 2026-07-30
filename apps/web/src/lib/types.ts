@@ -92,11 +92,3 @@ export type CreateFeedbackBody = {
 export type BulkFeedbackBody = {
   items: { rawText: string }[];
 };
-
-// Slack — web ingest disabled (kept for reference / API shape)
-// export type SlackFeedbackBody = {
-//   text: string;
-//   externalMessageId: string;
-//   channel?: string;
-//   userDisplayName?: string;
-// };

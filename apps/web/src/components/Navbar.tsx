@@ -9,7 +9,6 @@ const LINKS = [
   { to: '/ingest', label: 'Ingest' },
   { to: '/ingest/bulk', label: 'Bulk Ingest' },
   { to: '/ingest/file', label: 'Import file' },
-  /*{ to: '/integrations', label: 'Integrations' },*/
 ] as const;
 
 export function Navbar() {

@@ -7,7 +7,6 @@ import type {
   CreateFeedbackBody,
   FeedbackImportResult,
   FeedbackItem,
-  // SlackFeedbackBody,
 } from '../lib/types';
 
 function useInvalidateFeedback() {
@@ -32,18 +31,6 @@ export function useIngestBulk() {
     onSuccess: invalidate,
   });
 }
-
-// Slack — web ingest disabled
-// export function useIngestSlack() {
-//   const invalidate = useInvalidateFeedback();
-//   return useMutation({
-//     mutationFn: ({ body, secret }: { body: SlackFeedbackBody; secret: string }) =>
-//       postWithStatus<FeedbackItem>('/integrations/slack/feedback', body, {
-//         headers: { 'X-Ingest-Secret': secret },
-//       }),
-//     onSuccess: invalidate,
-//   });
-// }
 
 export function useIngestFile() {
   const invalidate = useInvalidateFeedback();
