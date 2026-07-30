@@ -1,11 +1,30 @@
+import { lazy } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
-import { DashboardPage } from './pages/DashboardPage';
-import { FeedbackDetailPage } from './pages/FeedbackDetailPage';
-import { IngestBulkPage } from './pages/IngestBulkPage';
-import { IngestFilePage } from './pages/IngestFilePage';
-import { IngestPage } from './pages/IngestPage';
-import { NotFoundPage } from './pages/NotFoundPage';
+
+/**
+ * One chunk per route. It matters mostly for the dashboard: recharts and
+ * @chakra-ui/charts are the bulk of the bundle and were being downloaded even
+ * by someone who only ever opens /ingest.
+ */
+const DashboardPage = lazy(() =>
+  import('./pages/DashboardPage').then((m) => ({ default: m.DashboardPage })),
+);
+const FeedbackDetailPage = lazy(() =>
+  import('./pages/FeedbackDetailPage').then((m) => ({ default: m.FeedbackDetailPage })),
+);
+const IngestPage = lazy(() =>
+  import('./pages/IngestPage').then((m) => ({ default: m.IngestPage })),
+);
+const IngestBulkPage = lazy(() =>
+  import('./pages/IngestBulkPage').then((m) => ({ default: m.IngestBulkPage })),
+);
+const IngestFilePage = lazy(() =>
+  import('./pages/IngestFilePage').then((m) => ({ default: m.IngestFilePage })),
+);
+const NotFoundPage = lazy(() =>
+  import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
+);
 
 export function App() {
   return (

@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
 import { ColorModeProvider } from './components/ui/color-mode';
+import './fonts.css';
 import { AppToaster } from './lib/AppToaster';
 import { system } from './theme';
 
