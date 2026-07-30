@@ -6,6 +6,7 @@
 **Decisão sobre docs do desafio:** apagar o enunciado, reescrever `.cursor/rules` e `docs/superpowers` sem citar a empresa.
 
 **Ordem recomendada:** Fase 0 (rebranding) → Fase 1 (testes) → Fase 2 (bugs) → Fase 3 (componentização) → Fase 4 (arquitetura) → Fase 5 (polimento).
+**Estado atual:** Fases 0 a 3 concluídas; próxima é a Fase 4.
 A Fase 1 vem antes da 3 de propósito: os testes são a rede de segurança que torna a refatoração de componentes segura.
 
 ---
@@ -180,7 +181,13 @@ Variável ausente aparecia como "erro de conexão" genérico, escondendo a causa
 - [x] `isWithinSizeLimit` + `MAX_FILE_SIZE_BYTES` em `lib/files.ts`, aplicado em `pickFile`
 - [x] O "max 10 MB" que a UI anunciava agora é de fato verificado antes do upload
 
-## Fase 3 — Componentização
+## Fase 3 — Componentização ✅ concluída
+
+Executada na ordem 3.4 → 3.3 → 3.2: a fonte de verdade do domínio primeiro, depois as abstrações
+compartilhadas, e só então a quebra das páginas — cada passo já consumindo o anterior. Os 172 testes
+da Fase 1 passaram sem uma linha alterada, que era exatamente o papel deles.
+
+`DashboardPage` foi de 553 para 187 linhas; `FeedbackDetailPage`, de 491 para 178.
 
 ### 3.1 Duplicação literal ✅ concluída na Fase 1
 
@@ -189,35 +196,37 @@ Variável ausente aparecia como "erro de conexão" genérico, escondendo a causa
 - [x] **`formatDate`** — duplicada em `DashboardPage:76` (`Intl.DateTimeFormat`) e `FeedbackDetailPage:54` (`toLocaleString`), com formatos **divergentes** na mesma aplicação → `lib/format.ts`, formato único
 - [x] **`type Props = { buckets: ...; isLoading: boolean }`** — repetido nos 5 charts → `StatBucket[]` em `lib/types.ts`
 
-### 3.2 Quebrar as páginas grandes
+### 3.2 Quebrar as páginas grandes ✅
 
-`DashboardPage` tem 628 linhas e acumula KPIs + filtros + tabela + paginação + diálogo.
+`DashboardPage` acumulava KPIs + filtros + tabela + paginação + diálogo em 553 linhas.
 
-- [ ] `<StatCard>` — os 4 cards de KPI são o mesmo JSX de ~30 linhas com props inline repetidas
-- [ ] `<SelectFilter label options value onChange>` — os 5 blocos `Field.Root` + `NativeSelect` são idênticos
-- [ ] `<FeedbackFilters>` — agrupa os 5 selects + botão de reset
-- [ ] `<FeedbackTable>` + mover `FeedbackTableRow` para arquivo próprio
-- [ ] `<Pagination>`
+- [x] `<StatCard>` — os 4 cards de KPI viraram um componente com `accent`, `valueColor`, `borderColor` e `suffix`; `AnimatedCount` mudou junto, já que só existe para eles
+- [x] `<SelectFilter label options value onChange>` — genérico em `T extends string`, com `formatOption` opcional para o caso do Source
+- [x] `<FeedbackFilters>` — agrupa os 5 selects + botão de reset
+- [x] `<FeedbackTable>` + `FeedbackTableRow` em arquivo próprio; a contagem de colunas do skeleton e do `colSpan` agora deriva da lista de headers, em vez de três `8` soltos
+- [x] `<Pagination>`
 
-`FeedbackDetailPage` tem 478 linhas; o grupo Reclassify + CopyID ocupa ~100 linhas de props de layout inline.
+`FeedbackDetailPage` tinha 491 linhas; o grupo Reclassify + CopyID ocupava ~100 linhas de props de layout inline.
 
-- [ ] `<CopyableId>`
-- [ ] `<ClassificationCard>`
-- [ ] `<SourceMetadataCard>`
+- [x] `<CopyableId>` — leva junto o estado `copied`, o timer e o tratamento de erro do clipboard
+- [x] `<ClassificationCard>` — com `sentimentPalette`/`urgencyPalette`/`formatClassificationRaw`
+- [x] `<SourceMetadataCard>` — o par label/valor repetido virou um `<Row>` local
 
-### 3.3 Abstrações compartilhadas
+### 3.3 Abstrações compartilhadas ✅
 
-- [ ] `<ChartCard title description isLoading skeletonHeight>` — os 5 charts repetem `Card.Root variant="outline" h="full" transition _hover` + header + branch de `Skeleton`; corta ~40% de cada arquivo
-- [ ] `components/icons/` — `TrashIcon`, `IconCopy`, `IconCheck`, `IconReclassify`, `SunIcon`, `MoonIcon` estão espalhados dentro das páginas
-- [ ] `<StatusBadge>` ou recipe do Chakra — `variant="subtle" textTransform="uppercase" fontSize="xs" letterSpacing="wide"` aparece 5 vezes
-- [ ] `<ErrorAlert title description>` — o bloco "Could not load…" está duplicado só no Dashboard
-- [ ] `<PageHeader>` + `<FormCard>` — as 3 páginas de ingest repetem `Container maxW="7xl" py={8}` + Heading + Box bordado
+- [x] `<ChartCard title description isLoading skeletonHeight>` — os 5 charts repetiam `Card.Root variant="outline" h="full" transition _hover` + header + branch de `Skeleton`. O `bodyProps` cobre a única diferença real entre eles (como o corpo centraliza o conteúdo)
+- [x] `components/icons/` — `TrashIcon`, `CopyIcon`, `CheckIcon`, `ReclassifyIcon`, `SunIcon`, `MoonIcon` sobre um `<Glyph>` comum; `InlineGlyph` para os que ficam ao lado de texto
+- [x] `<StatusBadge>` — `variant="subtle" textTransform="uppercase" fontSize="xs" letterSpacing="wide"` aparecia 5 vezes
+- [x] `<ErrorAlert title description>` — usado no Dashboard e nos 3 estados de erro do Detail; `preserveWhitespace` para o payload de erro da API
+- [x] `<PageHeader>` + `<FormCard>` — as 3 páginas de ingest repetiam Heading + Box bordado. `description`/`footnote` são `ReactNode` porque duas delas embutem links e `<code>`
 
-### 3.4 Fonte única de verdade para o domínio
+### 3.4 Fonte única de verdade para o domínio ✅
 
-Hoje as constantes vivem em dois lugares desalinhados: `SENTIMENT_OPTIONS`/`FEATURE_AREA_OPTIONS`/`URGENCY_OPTIONS` no `DashboardPage`, e `SENTIMENT_ORDER`+`SENTIMENT_LABELS`/`URGENCY_ORDER`/`FEATURE_ORDER` nos charts.
+As constantes viviam em dois lugares desalinhados: `SENTIMENT_OPTIONS`/`FEATURE_AREA_OPTIONS`/`URGENCY_OPTIONS` no `DashboardPage`, e `SENTIMENT_ORDER`+`SENTIMENT_LABELS`/`URGENCY_ORDER`/`FEATURE_ORDER` nos charts.
 
-- [ ] `lib/domain.ts` — um array por dimensão com `{ key, label, colorToken }`; filtros e charts derivam da mesma fonte
+- [x] `lib/domain.ts` — um `DomainOption[]` por dimensão com `{ key, label, colorToken }`
+- [x] As listas `*_OPTIONS` que os filtros e o `useFeedbackFilters` consomem passam a ser derivadas (`keysOf`), então não há como um valor existir no filtro e faltar no chart
+- [x] Os 5 charts perderam seus `*_ORDER`/`*_LABELS`/`*_COLORS` locais; o `formatLabel` do `FeatureAreaChart` e o `ChartSourceKey` do `SourceMixChart` deixaram de ser necessários
 
 ---
 
@@ -258,8 +267,8 @@ Hoje as constantes vivem em dois lugares desalinhados: `SENTIMENT_OPTIONS`/`FEAT
 ## Critérios de conclusão
 
 - [x] `grep -rniI` do nome antigo da empresa na árvore de trabalho retorna vazio
-- [ ] `pnpm build` passa nos dois apps
+- [x] `pnpm build` passa nos dois apps
 - [x] `pnpm lint` passa sem warnings novos
 - [x] `pnpm test` roda e passa em `apps/api` (10) **e** `apps/web` (172)
 - [x] Cobertura do `apps/web` acima do piso de 60% em `lib/` (95,9%) e `hooks/` (100%)
-- [ ] Nenhum arquivo de página acima de ~250 linhas
+- [x] Nenhum arquivo de página acima de ~250 linhas (o maior é `IngestFilePage` com 215)
