@@ -1,17 +1,9 @@
-import {
-  Box,
-  Button,
-  Container,
-  Field,
-  Heading,
-  Stack,
-  Text,
-  Textarea,
-  VStack,
-} from '@chakra-ui/react';
+import { Button, Container, Field, Text, Textarea, VStack } from '@chakra-ui/react';
 import { FormEvent, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
+import { FormCard } from '../components/FormCard';
+import { PageHeader } from '../components/PageHeader';
 import { useIngestBulk } from '../hooks/useIngest';
 import { errorMessage } from '../lib/errors';
 import { toaster } from '../lib/toaster';
@@ -94,36 +86,31 @@ export function IngestBulkPage() {
   return (
     <Container maxW="7xl" py={8}>
       <VStack align="stretch" gap={6}>
-        <Stack gap={1}>
-          <Heading as="h1" size="xl">
-            Bulk ingest
-          </Heading>
-          <Text color="fg.muted">
-            One feedback per line (max {MAX_ITEMS} lines). Each line is submitted as a separate item
-            with source{' '}
-            <Text as="span" fontWeight="medium">
-              web_bulk
-            </Text>
-            .
-          </Text>
-          <Text color="fg.muted" fontSize="sm">
-            Have a spreadsheet?{' '}
-            <NavLink to="/ingest/file">
-              <Text as="span" color="fg" textDecoration="underline" _hover={{ opacity: 0.85 }}>
-                Import CSV or Excel
+        <PageHeader
+          title="Bulk ingest"
+          description={
+            <>
+              One feedback per line (max {MAX_ITEMS} lines). Each line is submitted as a separate
+              item with source{' '}
+              <Text as="span" fontWeight="medium">
+                web_bulk
               </Text>
-            </NavLink>
-          </Text>
-        </Stack>
+              .
+            </>
+          }
+          footnote={
+            <>
+              Have a spreadsheet?{' '}
+              <NavLink to="/ingest/file">
+                <Text as="span" color="fg" textDecoration="underline" _hover={{ opacity: 0.85 }}>
+                  Import CSV or Excel
+                </Text>
+              </NavLink>
+            </>
+          }
+        />
 
-        <Box
-          maxW="2xl"
-          borderWidth="1px"
-          borderColor="border"
-          borderRadius="lg"
-          bg="bg.subtle"
-          p={6}
-        >
+        <FormCard>
           <form onSubmit={handleSubmit}>
             <VStack align="stretch" gap={4}>
               <Field.Root required>
@@ -144,7 +131,7 @@ export function IngestBulkPage() {
               </Button>
             </VStack>
           </form>
-        </Box>
+        </FormCard>
       </VStack>
     </Container>
   );

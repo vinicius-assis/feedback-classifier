@@ -1,7 +1,8 @@
-import { Box, Button, Container, Heading, Stack, Text, VStack } from '@chakra-ui/react';
+import { Box, Button, Container, Text, VStack } from '@chakra-ui/react';
 import { FormEvent, useCallback, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
+import { PageHeader } from '../components/PageHeader';
 import { useIngestFile } from '../hooks/useIngest';
 import { errorMessage } from '../lib/errors';
 import { isAcceptedFile, isWithinSizeLimit, MAX_FILE_SIZE_BYTES } from '../lib/files';
@@ -96,42 +97,44 @@ export function IngestFilePage() {
   return (
     <Container maxW="7xl" py={8}>
       <VStack align="stretch" gap={6}>
-        <Stack gap={1}>
-          <Heading as="h1" size="xl">
-            Import from file
-          </Heading>
-          <Text color="fg.muted">
-            Upload a{' '}
-            <Text as="span" fontWeight="medium">
-              .csv
-            </Text>{' '}
-            or{' '}
-            <Text as="span" fontWeight="medium">
-              .xlsx
-            </Text>{' '}
-            with one feedback per row (first column only). Optional header row:{' '}
-            <Text as="span" fontFamily="mono">
-              feedback
-            </Text>
-            ,{' '}
-            <Text as="span" fontFamily="mono">
-              comments
-            </Text>
-            , etc. Items are stored with source{' '}
-            <Text as="span" fontWeight="medium">
-              web_file
-            </Text>{' '}
-            and classified like other ingest paths.
-          </Text>
-          <Text color="fg.muted" fontSize="sm">
-            Prefer line-by-line paste?{' '}
-            <NavLink to="/ingest/bulk">
-              <Text as="span" color="fg" textDecoration="underline" _hover={{ opacity: 0.85 }}>
-                Bulk ingest
+        <PageHeader
+          title="Import from file"
+          description={
+            <>
+              Upload a{' '}
+              <Text as="span" fontWeight="medium">
+                .csv
+              </Text>{' '}
+              or{' '}
+              <Text as="span" fontWeight="medium">
+                .xlsx
+              </Text>{' '}
+              with one feedback per row (first column only). Optional header row:{' '}
+              <Text as="span" fontFamily="mono">
+                feedback
               </Text>
-            </NavLink>
-          </Text>
-        </Stack>
+              ,{' '}
+              <Text as="span" fontFamily="mono">
+                comments
+              </Text>
+              , etc. Items are stored with source{' '}
+              <Text as="span" fontWeight="medium">
+                web_file
+              </Text>{' '}
+              and classified like other ingest paths.
+            </>
+          }
+          footnote={
+            <>
+              Prefer line-by-line paste?{' '}
+              <NavLink to="/ingest/bulk">
+                <Text as="span" color="fg" textDecoration="underline" _hover={{ opacity: 0.85 }}>
+                  Bulk ingest
+                </Text>
+              </NavLink>
+            </>
+          }
+        />
 
         <form onSubmit={handleSubmit}>
           <VStack align="stretch" gap={4}>

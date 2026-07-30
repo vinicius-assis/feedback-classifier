@@ -1,16 +1,8 @@
-import {
-  Box,
-  Button,
-  Container,
-  Field,
-  Heading,
-  Stack,
-  Text,
-  Textarea,
-  VStack,
-} from '@chakra-ui/react';
+import { Button, Container, Field, Textarea, VStack } from '@chakra-ui/react';
 import { FormEvent, useState } from 'react';
 
+import { FormCard } from '../components/FormCard';
+import { PageHeader } from '../components/PageHeader';
 import { useIngestFeedback } from '../hooks/useIngest';
 import { classificationToast } from '../lib/classificationToast';
 import { errorMessage } from '../lib/errors';
@@ -76,21 +68,12 @@ export function IngestPage() {
   return (
     <Container maxW="7xl" py={8}>
       <VStack align="stretch" gap={6}>
-        <Stack gap={1}>
-          <Heading as="h1" size="xl">
-            Ingest feedback
-          </Heading>
-          <Text color="fg.muted">Submit a single feedback item for classification.</Text>
-        </Stack>
+        <PageHeader
+          title="Ingest feedback"
+          description="Submit a single feedback item for classification."
+        />
 
-        <Box
-          maxW="2xl"
-          borderWidth="1px"
-          borderColor="border"
-          borderRadius="lg"
-          bg="bg.subtle"
-          p={6}
-        >
+        <FormCard>
           <form onSubmit={handleSubmit}>
             <VStack align="stretch" gap={4}>
               <Field.Root required>
@@ -109,7 +92,7 @@ export function IngestPage() {
               </Button>
             </VStack>
           </form>
-        </Box>
+        </FormCard>
       </VStack>
     </Container>
   );
