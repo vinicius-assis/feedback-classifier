@@ -6,7 +6,7 @@
 **Decisão sobre docs do desafio:** apagar o enunciado, reescrever `.cursor/rules` e `docs/superpowers` sem citar a empresa.
 
 **Ordem recomendada:** Fase 0 (rebranding) → Fase 1 (testes) → Fase 2 (bugs) → Fase 3 (componentização) → Fase 4 (arquitetura) → Fase 5 (polimento).
-**Estado atual:** Fases 0 a 3 concluídas; próxima é a Fase 4.
+**Estado atual:** Fases 0 a 4 concluídas; próxima é a Fase 5.
 A Fase 1 vem antes da 3 de propósito: os testes são a rede de segurança que torna a refatoração de componentes segura.
 
 ---
@@ -230,26 +230,37 @@ As constantes viviam em dois lugares desalinhados: `SENTIMENT_OPTIONS`/`FEATURE_
 
 ---
 
-## Fase 4 — Arquitetura e código morto
+## Fase 4 — Arquitetura e código morto ✅ concluída
 
-### 4.1 Remover código morto
+Suíte do web foi de 172 para **178 testes** (o `App.tsx` não tinha nenhum, e agora todas as rotas
+dependem do Suspense resolver seu chunk).
 
-- [ ] `IntegrationsPage` — roteada em `App.tsx`, mas o link no `Navbar` está comentado e a página não faz nada. Remover página + rota
-- [ ] Blocos Slack comentados: `useIngest.ts` (`useIngestSlack`), `types.ts` (`SlackFeedbackBody`), `IngestPage.tsx` (`clearSlackFields`), `SourceMixChart.tsx`, `DashboardPage.tsx:59`, `Navbar.tsx:12`. O git guarda o histórico — deletar
-- [ ] Comentário órfão em `DashboardPage.tsx:18` ("Badge, Card, Skeleton kept for…")
-- [ ] Decidir sobre o Slack no `README` e no `.env.example` (`SLACK_INGEST_SECRET`): se a API ainda expõe o endpoint, manter documentado; se não, remover junto
+### 4.1 Remover código morto ✅
 
-### 4.2 Tipos compartilhados no monorepo
+- [x] `IntegrationsPage` — página e rota removidas, junto com o link comentado no `Navbar`
+- [x] Blocos Slack comentados: `useIngestSlack`, `SlackFeedbackBody` e `clearSlackFields`. Os do `SourceMixChart` e do `DashboardPage` já tinham saído na Fase 3
+- [x] Comentário órfão do `DashboardPage` — saiu junto com a reescrita da página na Fase 3
+- [x] **Decisão sobre o Slack:** fica documentado. A API ainda expõe `POST /api/integrations/slack/feedback` inteiro (controller, guard, DTO) e exige `SLACK_INGEST_SECRET` na validação de env do boot — remover do `README` e do `.env.example` deixaria um endpoint funcionando às escuras e um boot quebrando sem explicação. Fica também `slack_like` em `FeedbackSource`, porque a API devolve esse valor em linhas antigas
 
-`apps/web/src/lib/types.ts` reescreve à mão o schema do `apps/api` — divergência silenciosa é questão de tempo. O `pnpm-workspace.yaml` já existe.
+### 4.2 Tipos compartilhados no monorepo ✅
 
-- [ ] Criar `packages/shared` com os tipos de domínio e os contratos de request/response
-- [ ] Consumir em `apps/api` e `apps/web`
+- [x] `packages/shared` com a taxonomia (`domain.ts`) e o contrato HTTP (`contracts.ts`)
+- [x] Consumido nos dois apps: `apps/web/src/lib/types.ts` deixou de existir, e a taxonomia saiu do `feedback-item.schema.ts` — o schema Mongoose e os DTOs de validação da API agora derivam dos mesmos arrays que a UI
 
-### 4.3 Performance
+Detalhes que a extração impôs ou permitiu:
 
-- [ ] `React.lazy` por rota — `recharts` + `@chakra-ui/charts` entram no bundle inicial mesmo em `/ingest`
-- [ ] Auto-hospedar a fonte DM Sans (`index.html` busca do Google Fonts: bloqueia render e vaza IP do usuário)
+- O pacote emite **ESM e CJS**, porque o web é ESM e a API é CJS. `pnpm -r run build` já resolve a ordem topológica; `dev` e `test` da raiz constroem o pacote antes por segurança
+- `jest.config.cjs` passa a transformar só `.ts`, senão o ts-jest tenta compilar o JS já pronto do pacote
+- As dimensões de `lib/domain.ts` passam a ser construídas sobre um `Record<Union, …>`: um valor novo na taxonomia da API agora **quebra o build do web** em vez de sumir calado da UI. `Exclude<FeedbackSource, 'slack_like'>` documenta no tipo que a ausência do Slack é intencional
+- O teto de 20 itens do bulk vira `MAX_BULK_ITEMS`, consumido pelo `@ArrayMaxSize` da API e pela validação client-side
+
+### 4.3 Performance ✅
+
+- [x] `React.lazy` por rota — bundle inicial de **1.023 kB (298 kB gzip) para 529 kB (156 kB gzip)**; `recharts` + `@chakra-ui/charts` (456 kB) saem para o chunk do dashboard. O `Suspense` fica dentro do `ErrorBoundary` do `AppShell`, então falha de chunk cai no fallback que já existe
+- [x] DM Sans auto-hospedada em `public/fonts/` — são arquivos **variáveis**, então os 4 pesos do tema saem de um download por faixa unicode (latin 37 kB + latin-ext 18 kB), com `preload` do latin. A licença OFL vai junto, como o SIL exige na redistribuição
+
+Fica em aberto, fora do escopo do plano: o chunk `index` de 529 kB (React + Chakra + router) ainda
+dispara o aviso de tamanho do Vite. Resolver exigiria `manualChunks` para separar vendor.
 
 ---
 
@@ -269,6 +280,6 @@ As constantes viviam em dois lugares desalinhados: `SENTIMENT_OPTIONS`/`FEATURE_
 - [x] `grep -rniI` do nome antigo da empresa na árvore de trabalho retorna vazio
 - [x] `pnpm build` passa nos dois apps
 - [x] `pnpm lint` passa sem warnings novos
-- [x] `pnpm test` roda e passa em `apps/api` (10) **e** `apps/web` (172)
+- [x] `pnpm test` roda e passa em `apps/api` (10) **e** `apps/web` (178)
 - [x] Cobertura do `apps/web` acima do piso de 60% em `lib/` (95,9%) e `hooks/` (100%)
 - [x] Nenhum arquivo de página acima de ~250 linhas (o maior é `IngestFilePage` com 215)
